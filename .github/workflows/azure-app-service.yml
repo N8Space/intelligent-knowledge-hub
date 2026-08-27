@@ -1,0 +1,84 @@
+name: Build, Test & Deploy to Azure App Service
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: "intelligent-knowledge-hub"   # Set your Azure App Service web app name
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  build-and-test:
+    name: Lint, Build & Pytest QA
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install flake8 pytest pytest-asyncio httpx
+
+    - name: Lint with Flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 app tests --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings
+        flake8 app tests --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Run Automated Test Suite
+      run: |
+        pytest tests/ -v --tb=short
+
+    - name: Zip Artifact for Deployment
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        zip -r release.zip . -x "*.git*" ".venv/*" "__pycache__/*" "tests/*" ".pytest_cache/*"
+
+    - name: Upload Artifact for Deployment Job
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      uses: actions/upload-artifact@v4
+      with:
+        name: python-app
+        path: release.zip
+
+  deploy:
+    name: Deploy to Azure App Service
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+    - name: Download Artifact from Build Job
+      uses: actions/download-artifact@v4
+      with:
+        name: python-app
+
+    - name: Unzip Artifact
+      run: |
+        unzip release.zip -d ./app-package
+
+    - name: Deploy to Azure Web App
+      id: deploy-to-webapp
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: ./app-package
+        startup-command: './startup.sh'
