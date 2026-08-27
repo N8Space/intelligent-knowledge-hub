@@ -181,7 +181,11 @@ Executes hybrid vector retrieval against Azure AI Search, builds grounded contex
 
 ---
 
-## 🔗 Portfolio Showcase Integration
+## 🔗 Live Application & Portfolio Links
 
-This application is linked to the AI Enablement Portfolio at:
-👉 **[https://winelogbooks.com/projects/intelligent-knowledge-hub](https://winelogbooks.com/projects/intelligent-knowledge-hub)**
+* **Live Cloud Application (Azure App Service):**  
+  👉 **[https://intelligent-knowledge-hub-lesterlabs.azurewebsites.net](https://intelligent-knowledge-hub-lesterlabs.azurewebsites.net)**
+* **Portfolio Showcase Case Study:**  
+  👉 **[https://winelogbooks.com/projects/intelligent-knowledge-hub](https://winelogbooks.com/projects/intelligent-knowledge-hub)**
+* **GitHub Repository:**  
+  👉 **[https://github.com/N8Space/intelligent-knowledge-hub](https://github.com/N8Space/intelligent-knowledge-hub)**
