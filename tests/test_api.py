@@ -10,8 +10,8 @@ def test_health_check():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "healthy"
-    assert "Intelligent Knowledge Hub" in data["app_name"]
-    assert "version" in data
+    assert "MemberAssist" in data["app_name"]
+    assert data["version"] == "2.0.0"
 
 
 def test_sample_queries():
@@ -21,6 +21,7 @@ def test_sample_queries():
     assert isinstance(data, list)
     assert len(data) >= 3
     assert "query" in data[0]
+    assert "category" in data[0]
 
 
 def test_list_documents():
@@ -30,13 +31,14 @@ def test_list_documents():
     assert isinstance(data, list)
     assert len(data) >= 1
     assert "id" in data[0]
-    assert "governance_status" in data[0]
+    assert "Approved" in data[0]["governance_status"]
 
 
-def test_knowledge_query():
+def test_knowledge_query_csr():
     payload = {
-        "query": "What is the mandatory timeline and protocol for a Sev-1 incident?",
+        "query": "What is the member's cost share for an out-of-network MRI under the Standard PPO plan?",
         "top_k": 3,
+        "call_type": "Benefit Schedule",
         "strict_governance_only": True,
     }
     response = client.post("/api/query", json=payload)
@@ -47,18 +49,21 @@ def test_knowledge_query():
     assert "metrics" in data
     assert data["metrics"]["total_latency_ms"] >= 0
     assert data["governance_passed"] is True
+    assert data["guidance"] is not None
+    assert "plain_language_script" in data["guidance"]
+    assert len(data["guidance"]["action_steps"]) > 0
 
 
 def test_document_ingestion():
     payload = {
         "documents": [
             {
-                "id": "SOP-TEST-999",
-                "title": "Automated Quality Assurance Testing SOP",
-                "category": "Quality Engineering",
-                "department": "Engineering",
-                "content": "All automated end-to-end and regression test suites must run upon pull request creation and achieve 100% pass rate before staging deployment.",
-                "governance_status": "Approved",
+                "id": "PLAN-DENTAL-2026",
+                "title": "Comprehensive Dental Benefit Rider (2026)",
+                "category": "Benefit Schedule",
+                "department": "Dental Operations",
+                "content": "Routine cleanings and examinations are covered twice per calendar year at 100% in-network ($0 member copay).",
+                "governance_status": "Approved 2026 Policy",
                 "version": "1.0",
             }
         ]

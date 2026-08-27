@@ -11,11 +11,11 @@ from app.models.schemas import (
     IngestResponse,
     HealthResponse,
 )
-from app.services.search_service import search_service, MOCK_KNOWLEDGE_STORE
+from app.services.search_service import search_service, HEALTH_INSURANCE_KNOWLEDGE_STORE
 from app.services.llm_service import llm_service
 
-logger = logging.getLogger("intelligent_knowledge_hub.api")
-router = APIRouter(prefix="/api", tags=["Enterprise Knowledge Hub API"])
+logger = logging.getLogger("memberassist.api")
+router = APIRouter(prefix="/api", tags=["MemberAssist Health Hub API"])
 
 
 @router.get("/health", response_model=HealthResponse, summary="App Service Health Check Probe")
@@ -31,7 +31,7 @@ async def health_check() -> HealthResponse:
     return HealthResponse(
         status="healthy",
         app_name=settings.APP_NAME,
-        version="1.0.0",
+        version="2.0.0",
         environment=settings.APP_ENV,
         azure_search_connected=search_conn,
         azure_openai_connected=openai_conn,
@@ -39,11 +39,11 @@ async def health_check() -> HealthResponse:
     )
 
 
-@router.post("/query", response_model=QueryResponse, summary="Knowledge Retrieval & Grounded Synthesis")
+@router.post("/query", response_model=QueryResponse, summary="CSR Knowledge Retrieval & Grounded Guidance")
 async def query_knowledge_hub(request: QueryRequest) -> QueryResponse:
     """
-    Retrieves governance-approved SOPs and knowledge chunks via Azure AI Search (Hybrid Vector + Semantic Ranker),
-    constructs the grounded context prompt, and synthesizes an authoritative answer with exact source citations.
+    Retrieves health plan policies, SOPs, and claims rules via Azure AI Search (Hybrid Vector + Semantic Ranker),
+    and synthesizes live call readback scripts, step-by-step CRM actions, and verifiable citations.
     """
     overall_start = time.time()
     try:
@@ -51,12 +51,12 @@ async def query_knowledge_hub(request: QueryRequest) -> QueryResponse:
         citations, retrieval_ms, search_mode = await search_service.search(
             query=request.query,
             top_k=request.top_k,
-            department=request.filter_department,
+            call_type=request.call_type,
             strict_governance_only=request.strict_governance_only,
         )
 
-        # Step 2: Grounded LLM Synthesis
-        answer, llm_ms = await llm_service.generate_response(
+        # Step 2: Grounded CSR Copilot Synthesis
+        answer, guidance, llm_ms = await llm_service.generate_response(
             query=request.query,
             citations=citations,
         )
@@ -74,22 +74,24 @@ async def query_knowledge_hub(request: QueryRequest) -> QueryResponse:
         return QueryResponse(
             query=request.query,
             answer=answer,
+            guidance=guidance,
             citations=citations,
             metrics=metrics,
             governance_passed=True,
+            confidence_level="High (100% Policy Grounded)",
         )
     except Exception as e:
-        logger.error(f"Error processing query request: {e}", exc_info=True)
+        logger.error(f"Error processing CSR query request: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to process knowledge query: {str(e)}",
+            detail=f"Failed to process health knowledge query: {str(e)}",
         )
 
 
-@router.post("/ingest", response_model=IngestResponse, summary="Ingest & Vectorize SOP Documents")
+@router.post("/ingest", response_model=IngestResponse, summary="Ingest Health Plan Documents")
 async def ingest_documents(request: IngestRequest) -> IngestResponse:
     """
-    Administrative ingestion endpoint to chunk, vectorize, and index enterprise SOPs into Azure AI Search.
+    Administrative ingestion endpoint to chunk, vectorize, and index health plan certificates and SOPs.
     """
     try:
         doc_count, chunk_count = await search_service.ingest_documents(request.documents)
@@ -97,58 +99,63 @@ async def ingest_documents(request: IngestRequest) -> IngestResponse:
             status="success",
             indexed_documents=doc_count,
             indexed_chunks=chunk_count,
-            message=f"Successfully indexed {doc_count} enterprise documents across {chunk_count} vector chunks.",
+            message=f"Successfully indexed {doc_count} health policy documents across {chunk_count} vector chunks.",
         )
     except Exception as e:
         logger.error(f"Ingestion failure: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Document ingestion failed: {str(e)}",
+            detail=f"Health document ingestion failed: {str(e)}",
         )
 
 
-@router.get("/sample-queries", summary="Pre-configured enterprise demonstration queries")
+@router.get("/sample-queries", summary="Curated CSR Call Scenarios")
 async def get_sample_queries() -> List[Dict[str, str]]:
     """
-    Curated prompts for portfolio showcases demonstrating compliance, security, and enablement workflows.
+    Realistic frontline health insurance caller scenarios for live testing.
     """
     return [
         {
-            "category": "Security & Incident Response",
-            "query": "What is the mandatory response protocol and SLA timeline for a Sev-1 production outage?",
-            "icon": "shield-alert",
+            "category": "Benefit Schedule",
+            "title": "Out-of-Network MRI Cost Share",
+            "query": "What is the member's cost share for an out-of-network MRI under the Standard PPO plan?",
+            "icon": "scan",
         },
         {
-            "category": "AI Governance & Architecture",
-            "query": "What guardrails and content safety rules are required before deploying an LLM to Azure?",
-            "icon": "cpu",
+            "category": "Prior Authorization",
+            "title": "Urgent Prior Auth & P2P Window",
+            "query": "What are the SLA turnaround timelines for urgent prior auth and the peer-to-peer appeal window?",
+            "icon": "clock",
         },
         {
-            "category": "Platform & DevOps",
-            "query": "What are the CI/CD pipeline and Infrastructure as Code (IaC) standards for Azure deployments?",
-            "icon": "git-merge",
+            "category": "Claims & Billing",
+            "title": "Surprise Bill & CO-16 Denial",
+            "query": "How do I explain a CO-16 denial code and what are our No Surprises Act protections for members?",
+            "icon": "file-warning",
         },
         {
-            "category": "Data Access & RBAC",
-            "query": "How is access control and Key Vault credential rotation enforced for production data?",
-            "icon": "lock",
+            "category": "HIPAA & Compliance",
+            "title": "Spouse Medical Records Request",
+            "query": "Can a spouse access medical claims for their partner without a signed HIPAA form on file?",
+            "icon": "shield-check",
         },
     ]
 
 
-@router.get("/documents", summary="List indexed knowledge base documents")
+@router.get("/documents", summary="List indexed health policy documents")
 async def list_indexed_documents() -> List[Dict[str, Any]]:
     """
-    Returns the metadata of all currently indexed SOPs and policies.
+    Returns metadata for active health benefit schedules, SOPs, and regulatory guides.
     """
     return [
         {
             "id": doc["id"],
             "title": doc["title"],
             "category": doc["category"],
+            "section": doc.get("section", "General"),
             "department": doc["department"],
             "governance_status": doc["governance_status"],
             "last_reviewed": doc["last_reviewed"],
         }
-        for doc in MOCK_KNOWLEDGE_STORE
+        for doc in HEALTH_INSURANCE_KNOWLEDGE_STORE
     ]

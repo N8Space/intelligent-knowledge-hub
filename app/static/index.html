@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Intelligent Knowledge Hub | Enterprise AI Enablement</title>
+  <title>MemberAssist | Health Insurance CSR Knowledge Hub</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
@@ -17,12 +17,13 @@
         extend: {
           colors: {
             brand: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-              900: '#312e81',
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              800: '#0c4a6e',
+              900: '#082f49',
             }
           }
         }
@@ -30,50 +31,50 @@
     }
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
     code, pre { font-family: 'JetBrains Mono', monospace; }
-    .prose-invert h3 { color: #818cf8; font-weight: 700; margin-top: 1rem; margin-bottom: 0.5rem; }
-    .prose-invert ul { list-style-type: disc; padding-left: 1.25rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
-    .prose-invert li { margin-top: 0.25rem; margin-bottom: 0.25rem; }
-    .prose-invert blockquote { border-left: 3px solid #6366f1; padding-left: 1rem; color: #94a3b8; font-style: italic; margin-top: 0.75rem; }
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .prose-invert h3 { color: #38bdf8; font-weight: 700; font-size: 0.95rem; margin-top: 0.75rem; margin-bottom: 0.25rem; }
+    .prose-invert ul { list-style-type: disc; padding-left: 1.25rem; margin-top: 0.35rem; margin-bottom: 0.35rem; }
+    .prose-invert li { margin-top: 0.15rem; margin-bottom: 0.15rem; }
+    .prose-invert blockquote { border-left: 3px solid #0284c7; padding-left: 0.75rem; color: #94a3b8; font-style: italic; margin-top: 0.5rem; }
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #082f49; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
   </style>
 </head>
-<body class="h-full flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+<body class="h-full flex flex-col antialiased selection:bg-sky-500 selection:text-white">
 
-  <!-- Navigation Bar -->
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-30">
+  <!-- Call Center Copilot Header -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       
-      <!-- Brand Logo & Badges -->
+      <!-- Brand & Badges -->
       <div class="flex items-center space-x-3">
-        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
-          <i data-lucide="brain-circuit" class="w-6 h-6 text-white"></i>
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-sky-500/25">
+          <i data-lucide="headset" class="w-6 h-6 text-white"></i>
         </div>
         <div>
           <div class="flex items-center space-x-2">
-            <span class="font-bold text-lg tracking-tight text-white">Intelligent Knowledge Hub</span>
-            <span class="px-2 py-0.5 text-xs font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              Governance Grounded
+            <span class="font-bold text-lg tracking-tight text-white">MemberAssist</span>
+            <span class="text-xs px-2 py-0.5 font-semibold uppercase tracking-wider bg-sky-500/10 text-sky-400 border border-sky-500/20 rounded-full flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse"></span>
+              2026 Health Plan Copilot
             </span>
           </div>
-          <p class="text-xs text-slate-400">Enterprise AI Retrieval & Policy Assistant</p>
+          <p class="text-xs text-slate-400">CSR First Contact Resolution & Member Advocacy Hub</p>
         </div>
       </div>
 
-      <!-- Header CTAs and Links -->
+      <!-- Quick Action Navigation -->
       <div class="flex items-center space-x-3">
         <button id="doc-catalog-btn" class="px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-all flex items-center gap-1.5">
-          <i data-lucide="library" class="w-4 h-4"></i>
-          <span>Knowledge Index (<span id="indexed-count-badge">6</span>)</span>
+          <i data-lucide="shield-plus" class="w-4 h-4 text-sky-400"></i>
+          <span>Plan Schedules & SOPs (<span id="indexed-count-badge">6</span>)</span>
         </button>
 
         <a href="https://winelogbooks.com/projects/intelligent-knowledge-hub" target="_blank" rel="noopener noreferrer"
-           class="px-3 py-1.5 text-xs font-semibold text-indigo-300 bg-indigo-950/60 hover:bg-indigo-900/80 border border-indigo-700/50 rounded-lg transition-all flex items-center gap-1.5 group">
+           class="px-3 py-1.5 text-xs font-semibold text-sky-300 bg-sky-950/60 hover:bg-sky-900/80 border border-sky-700/50 rounded-lg transition-all flex items-center gap-1.5 group">
           <i data-lucide="external-link" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
           <span>Portfolio Case Study</span>
         </a>
@@ -82,31 +83,50 @@
     </div>
   </header>
 
-  <!-- Main Showcase Container -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-hidden">
+  <!-- Quick Category Filter Pills -->
+  <div class="bg-slate-900/60 border-b border-slate-800/80 px-4 sm:px-6 lg:px-8 py-2.5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 overflow-x-auto custom-scrollbar">
+      <div class="flex items-center gap-2 flex-nowrap">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-2 flex items-center gap-1">
+          <i data-lucide="filter" class="w-3.5 h-3.5 text-sky-400"></i> Quick Call Filters:
+        </span>
+        <button class="filter-chip active-filter px-3 py-1 text-xs font-medium rounded-lg bg-sky-600 text-white transition-all shadow-sm" data-category="All">All Topics</button>
+        <button class="filter-chip px-3 py-1 text-xs font-medium rounded-lg bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700 transition-all" data-category="Benefit Schedule">Benefit Schedule</button>
+        <button class="filter-chip px-3 py-1 text-xs font-medium rounded-lg bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700 transition-all" data-category="Prior Authorization">Prior Auth & P2P</button>
+        <button class="filter-chip px-3 py-1 text-xs font-medium rounded-lg bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700 transition-all" data-category="Claims Resolution">Claims & Denials</button>
+        <button class="filter-chip px-3 py-1 text-xs font-medium rounded-lg bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700 transition-all" data-category="HIPAA & Compliance">HIPAA & Representative</button>
+      </div>
+      <div class="hidden sm:flex items-center gap-2 text-[11px] text-emerald-400 bg-emerald-950/30 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+        <i data-lucide="lock" class="w-3 h-3"></i> Zero-PII Policy Grounding Active
+      </div>
+    </div>
+  </div>
+
+  <!-- Main CSR Workspace -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 grid grid-cols-1 lg:grid-cols-12 gap-5 overflow-hidden">
     
-    <!-- Left Chat & Query Section (8 Cols) -->
-    <div class="lg:col-span-8 flex flex-col h-[calc(100vh-8rem)] bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 sm:p-6 backdrop-blur shadow-2xl relative">
+    <!-- Left Interaction & Guidance Panel (8 Cols) -->
+    <div class="lg:col-span-8 flex flex-col h-[calc(100vh-10.5rem)] bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 sm:p-5 backdrop-blur shadow-2xl relative">
       
-      <!-- Chat Conversation Stream -->
-      <div id="chat-stream" class="flex-1 overflow-y-auto custom-scrollbar space-y-6 pr-2 mb-4">
+      <!-- Conversation & Resolution Stream -->
+      <div id="chat-stream" class="flex-1 overflow-y-auto custom-scrollbar space-y-5 pr-2 mb-3">
         
-        <!-- Welcome Hero Card -->
-        <div class="bg-gradient-to-br from-indigo-950/40 via-slate-900/80 to-slate-900 border border-indigo-500/20 rounded-xl p-5 shadow-inner">
-          <div class="flex items-start space-x-4">
-            <div class="p-3 bg-indigo-600/20 text-indigo-400 rounded-lg border border-indigo-500/30">
-              <i data-lucide="sparkles" class="w-6 h-6"></i>
+        <!-- CSR Welcome & Live Scenario Guide -->
+        <div class="bg-gradient-to-br from-sky-950/40 via-slate-900/80 to-slate-900 border border-sky-500/20 rounded-xl p-4 shadow-inner">
+          <div class="flex items-start space-x-3.5">
+            <div class="p-2.5 bg-sky-600/20 text-sky-400 rounded-lg border border-sky-500/30">
+              <i data-lucide="sparkles" class="w-5 h-5"></i>
             </div>
             <div class="flex-1">
-              <h2 class="text-base font-bold text-white mb-1">Enterprise Retrieval-Augmented Knowledge Assistant</h2>
+              <h2 class="text-sm font-bold text-white mb-1">Health Plan Member Service Copilot</h2>
               <p class="text-xs text-slate-300 leading-relaxed mb-3">
-                Ask questions across verified enterprise standard operating procedures (SOPs), incident response guidelines, security policies, and AI governance standards. All responses are strictly grounded in authorized documentation with citation verification.
+                Assisting frontline representatives with real-time benefit lookups, out-of-network coinsurance calculations, prior auth turnaround SLAs, No Surprises Act compliance, and call readback scripts.
               </p>
               
-              <!-- Quick Starter Pills -->
-              <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Recommended Enterprise Queries:</div>
+              <!-- Quick Scenario Prompts -->
+              <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Select a Live Member Inquiry Scenario:</div>
               <div id="starter-queries" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <!-- Dynamically populated by JS -->
+                <!-- Injected via API -->
               </div>
             </div>
           </div>
@@ -114,30 +134,30 @@
 
       </div>
 
-      <!-- Bottom Query Input Bar -->
-      <div class="pt-3 border-t border-slate-800">
+      <!-- Bottom Live Inquiry Bar -->
+      <div class="pt-2.5 border-t border-slate-800">
         <form id="query-form" class="relative flex items-center">
           <input 
             type="text" 
             id="query-input" 
-            placeholder="Search enterprise SOPs, policies, or SLAs (e.g., 'What is the Sev-1 incident SLA?')..."
-            class="w-full pl-4 pr-24 py-3.5 bg-slate-950/90 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner"
+            placeholder="Type member question (e.g. 'What is the member cost share for an out-of-network MRI?')..."
+            class="w-full pl-4 pr-24 py-3 bg-slate-950/90 border border-slate-700/80 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all shadow-inner"
             required
             autocomplete="off"
           />
           <button 
             type="submit" 
             id="submit-btn"
-            class="absolute right-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow-md shadow-indigo-600/30 transition-all disabled:opacity-50"
+            class="absolute right-1.5 px-3.5 py-1.5 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white text-xs font-semibold rounded-lg flex items-center gap-1 shadow-md shadow-sky-600/30 transition-all disabled:opacity-50"
           >
-            <span>Ask</span>
-            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            <span>Lookup</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
           </button>
         </form>
-        <div class="flex items-center justify-between mt-2 px-1 text-[11px] text-slate-500">
+        <div class="flex items-center justify-between mt-1.5 px-1 text-[10px] text-slate-500">
           <span class="flex items-center gap-1">
-            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
-            Enforcing strict governance grounding & citation validation
+            <i data-lucide="check-check" class="w-3 h-3 text-emerald-400"></i>
+            Grounding across 2026 Commercial PPO, Prior Auth SOP, and Claims Manuals
           </span>
           <span id="api-status-badge" class="text-slate-400">Azure AI Search Hybrid + Semantic Ranker</span>
         </div>
@@ -145,60 +165,55 @@
 
     </div>
 
-    <!-- Right Live Telemetry & Citations Drawer (4 Cols) -->
-    <div class="lg:col-span-4 flex flex-col h-[calc(100vh-8rem)] space-y-4">
+    <!-- Right Live Telemetry & Verified Policy Drawer (4 Cols) -->
+    <div class="lg:col-span-4 flex flex-col h-[calc(100vh-10.5rem)] space-y-3">
       
       <!-- Live Metrics Card -->
-      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 backdrop-blur shadow-xl">
-        <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
-          <div class="flex items-center space-x-2">
-            <i data-lucide="activity" class="w-4 h-4 text-indigo-400"></i>
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-200">Execution Telemetry</span>
+      <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-3.5 backdrop-blur shadow-xl">
+        <div class="flex items-center justify-between mb-2.5 border-b border-slate-800 pb-1.5">
+          <div class="flex items-center space-x-1.5">
+            <i data-lucide="gauge" class="w-4 h-4 text-sky-400"></i>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-200">AHT Optimization Telemetry</span>
           </div>
-          <span id="metrics-status-badge" class="px-2 py-0.5 text-[10px] font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 rounded">
-            Live Probe
+          <span id="confidence-badge" class="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded">
+            100% Policy Grounded
           </span>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
-            <div class="text-[11px] text-slate-400">Retrieval Latency</div>
-            <div id="metric-retrieval" class="text-base font-bold text-indigo-400">-- ms</div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80">
+            <div class="text-[10px] text-slate-400">Search Retrieval</div>
+            <div id="metric-retrieval" class="text-sm font-bold text-sky-400">-- ms</div>
           </div>
-          <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
-            <div class="text-[11px] text-slate-400">LLM Synthesis</div>
-            <div id="metric-llm" class="text-base font-bold text-violet-400">-- ms</div>
+          <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80">
+            <div class="text-[10px] text-slate-400">Copilot Synthesis</div>
+            <div id="metric-llm" class="text-sm font-bold text-cyan-400">-- ms</div>
           </div>
-          <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
-            <div class="text-[11px] text-slate-400">Total Latency</div>
-            <div id="metric-total" class="text-base font-bold text-emerald-400">-- ms</div>
+          <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80">
+            <div class="text-[10px] text-slate-400">Total Lookup SLA</div>
+            <div id="metric-total" class="text-sm font-bold text-emerald-400">-- ms</div>
           </div>
-          <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
-            <div class="text-[11px] text-slate-400">Sources Grounded</div>
-            <div id="metric-sources" class="text-base font-bold text-white">--</div>
+          <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80">
+            <div class="text-[10px] text-slate-400">Policies Cited</div>
+            <div id="metric-sources" class="text-sm font-bold text-white">--</div>
           </div>
-        </div>
-
-        <div class="mt-3 text-[11px] text-slate-400 flex items-center justify-between bg-slate-950/40 px-2.5 py-1.5 rounded-lg border border-slate-800/50">
-          <span>Search Strategy:</span>
-          <span id="metric-mode" class="font-semibold text-indigo-300">Hybrid + Semantic Ranker</span>
         </div>
       </div>
 
-      <!-- Grounded Source Citations Drawer -->
-      <div class="flex-1 bg-slate-900/70 border border-slate-800 rounded-2xl p-4 backdrop-blur shadow-xl flex flex-col overflow-hidden">
-        <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
-          <div class="flex items-center space-x-2">
-            <i data-lucide="file-check-2" class="w-4 h-4 text-emerald-400"></i>
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-200">Verified Source Citations</span>
+      <!-- Verifiable Policy Citations Drawer -->
+      <div class="flex-1 bg-slate-900/70 border border-slate-800 rounded-xl p-3.5 backdrop-blur shadow-xl flex flex-col overflow-hidden">
+        <div class="flex items-center justify-between mb-2.5 border-b border-slate-800 pb-1.5">
+          <div class="flex items-center space-x-1.5">
+            <i data-lucide="file-check" class="w-4 h-4 text-emerald-400"></i>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-200">Verified Plan Citations</span>
           </div>
-          <span id="citation-count-badge" class="text-[11px] text-slate-400">0 Sources</span>
+          <span id="citation-count-badge" class="text-[10px] text-slate-400">0 Citations</span>
         </div>
 
-        <div id="citations-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1">
-          <div class="h-full flex flex-col items-center justify-center text-center p-6 text-slate-500">
-            <i data-lucide="search-code" class="w-10 h-10 mb-2 stroke-1 opacity-40"></i>
-            <p class="text-xs">Submit a natural language query to inspect retrieved enterprise document chunks, relevance confidence, and governance badges.</p>
+        <div id="citations-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-2.5 pr-1">
+          <div class="h-full flex flex-col items-center justify-center text-center p-4 text-slate-500">
+            <i data-lucide="book-marked" class="w-8 h-8 mb-2 stroke-1 opacity-40"></i>
+            <p class="text-xs">Submit an inquiry to inspect retrieved benefit clauses, deductible schedules, and confidence scores.</p>
           </div>
         </div>
       </div>
@@ -207,17 +222,17 @@
 
   </main>
 
-  <!-- Knowledge Index Catalog Modal -->
+  <!-- Plan Schedules & SOPs Catalog Modal -->
   <div id="catalog-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
       <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
         <div class="flex items-center space-x-3">
-          <div class="p-2 bg-indigo-600/20 text-indigo-400 rounded-lg">
-            <i data-lucide="book-open" class="w-5 h-5"></i>
+          <div class="p-2 bg-sky-600/20 text-sky-400 rounded-lg">
+            <i data-lucide="file-text" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="font-bold text-white text-base">Indexed Enterprise Knowledge Store</h3>
-            <p class="text-xs text-slate-400">Active SOPs, architecture guidelines, and compliance documentation</p>
+            <h3 class="font-bold text-white text-base">Active 2026 Health Plan Knowledge Base</h3>
+            <p class="text-xs text-slate-400">Standard PPO Schedules, Utilization Management SOPs & HIPAA Rules</p>
           </div>
         </div>
         <button id="close-catalog-btn" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
@@ -234,6 +249,7 @@
   <script>
     // State
     let isProcessing = false;
+    let selectedCategory = "All";
 
     // Elements
     const chatStream = document.getElementById('chat-stream');
@@ -247,14 +263,27 @@
     const metricLlm = document.getElementById('metric-llm');
     const metricTotal = document.getElementById('metric-total');
     const metricSources = document.getElementById('metric-sources');
-    const metricMode = document.getElementById('metric-mode');
     const catalogModal = document.getElementById('catalog-modal');
     const docCatalogBtn = document.getElementById('doc-catalog-btn');
     const closeCatalogBtn = document.getElementById('close-catalog-btn');
     const catalogList = document.getElementById('catalog-list');
+    const filterChips = document.querySelectorAll('.filter-chip');
 
     // Initialize Lucide icons
     lucide.createIcons();
+
+    // Category Filter selection
+    filterChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        filterChips.forEach(c => {
+          c.classList.remove('bg-sky-600', 'text-white');
+          c.classList.add('bg-slate-800/80', 'text-slate-300');
+        });
+        chip.classList.remove('bg-slate-800/80', 'text-slate-300');
+        chip.classList.add('bg-sky-600', 'text-white');
+        selectedCategory = chip.getAttribute('data-category');
+      });
+    });
 
     // Fetch sample queries on load
     async function loadSampleQueries() {
@@ -262,17 +291,21 @@
         const res = await fetch('/api/sample-queries');
         const queries = await res.json();
         starterQueriesContainer.innerHTML = queries.map(q => `
-          <button type="button" class="starter-query-btn text-left p-2.5 bg-slate-950/70 hover:bg-indigo-950/40 border border-slate-800 hover:border-indigo-500/40 rounded-lg text-xs text-slate-300 hover:text-white transition-all flex items-start gap-2 group" data-query="${q.query}">
-            <i data-lucide="help-circle" class="w-3.5 h-3.5 text-indigo-400 mt-0.5 flex-shrink-0"></i>
-            <span class="line-clamp-2">${q.query}</span>
+          <button type="button" class="starter-query-btn text-left p-2.5 bg-slate-950/70 hover:bg-sky-950/40 border border-slate-800 hover:border-sky-500/40 rounded-lg text-xs text-slate-300 hover:text-white transition-all flex items-start gap-2 group" data-query="${q.query}">
+            <i data-lucide="phone-call" class="w-3.5 h-3.5 text-sky-400 mt-0.5 flex-shrink-0"></i>
+            <div>
+              <div class="font-semibold text-[11px] text-sky-300">${escapeHtml(q.title || q.category)}</div>
+              <div class="line-clamp-2 text-[10px] text-slate-400">${escapeHtml(q.query)}</div>
+            </div>
           </button>
         `).join('');
         lucide.createIcons();
 
         document.querySelectorAll('.starter-query-btn').forEach(btn => {
           btn.addEventListener('click', () => {
-            queryInput.value = btn.getAttribute('data-query');
-            submitQuery(btn.getAttribute('data-query'));
+            const queryText = btn.getAttribute('data-query');
+            queryInput.value = queryText;
+            submitQuery(queryText);
           });
         });
       } catch (err) {
@@ -297,15 +330,20 @@
         const res = await fetch('/api/query', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: queryText, top_k: 4, strict_governance_only: true })
+          body: JSON.stringify({ 
+            query: queryText, 
+            top_k: 4, 
+            call_type: selectedCategory,
+            strict_governance_only: true 
+          })
         });
 
         if (!res.ok) throw new Error(`Query failed: ${res.statusText}`);
         const data = await res.json();
 
-        // Remove loading bubble and append real AI message
+        // Remove loading bubble and append structured CSR guidance
         removeMessage(loadingBubbleId);
-        appendAIMessage(data.answer, data.citations);
+        appendCSRGuidanceMessage(data);
 
         // Update telemetry and citations drawer
         updateTelemetry(data.metrics);
@@ -324,13 +362,14 @@
     // UI Helpers
     function appendUserMessage(text) {
       const el = document.createElement('div');
-      el.className = "flex items-start justify-end space-x-3";
+      el.className = "flex items-start justify-end space-x-2.5";
       el.innerHTML = `
-        <div class="max-w-2xl bg-indigo-600 text-white p-3.5 rounded-2xl rounded-tr-none text-xs sm:text-sm shadow-md">
+        <div class="max-w-xl bg-sky-700 text-white p-3 rounded-2xl rounded-tr-none text-xs sm:text-sm shadow-md">
+          <div class="font-bold text-[10px] text-sky-200 uppercase mb-0.5">CSR In-Call Inquiry</div>
           ${escapeHtml(text)}
         </div>
-        <div class="w-8 h-8 rounded-lg bg-indigo-700 flex items-center justify-center text-white flex-shrink-0">
-          <i data-lucide="user" class="w-4 h-4"></i>
+        <div class="w-7 h-7 rounded-lg bg-sky-800 flex items-center justify-center text-white flex-shrink-0">
+          <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
         </div>
       `;
       chatStream.appendChild(el);
@@ -342,14 +381,14 @@
       const id = 'msg-' + Date.now();
       const el = document.createElement('div');
       el.id = id;
-      el.className = "flex items-start space-x-3";
+      el.className = "flex items-start space-x-2.5";
       el.innerHTML = `
-        <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white flex-shrink-0">
-          <i data-lucide="bot" class="w-4 h-4"></i>
+        <div class="w-7 h-7 rounded-lg bg-sky-600 flex items-center justify-center text-white flex-shrink-0">
+          <i data-lucide="activity" class="w-3.5 h-3.5 animate-spin"></i>
         </div>
-        <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl rounded-tl-none text-xs text-slate-400 flex items-center space-x-2">
-          <div class="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></div>
-          <span>Retrieving hybrid vectors & synthesizing grounded answer...</span>
+        <div class="bg-slate-950/80 border border-slate-800 p-3.5 rounded-2xl rounded-tl-none text-xs text-slate-400 flex items-center space-x-2">
+          <div class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></div>
+          <span>Retrieving 2026 benefit schedules & generating call guidance...</span>
         </div>
       `;
       chatStream.appendChild(el);
@@ -363,26 +402,64 @@
       if (el) el.remove();
     }
 
-    function appendAIMessage(answerMarkdown, citations) {
+    function appendCSRGuidanceMessage(data) {
       const el = document.createElement('div');
-      el.className = "flex items-start space-x-3";
-      const renderedHtml = marked.parse(answerMarkdown);
+      el.className = "flex items-start space-x-2.5";
+      const renderedHtml = marked.parse(data.answer);
+      const guidance = data.guidance;
+
+      const scriptBlock = guidance && guidance.plain_language_script ? `
+        <div class="bg-sky-950/60 border border-sky-500/30 rounded-xl p-3.5 mb-3 relative group">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+              <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+              Live Member Readback Script
+            </span>
+            <button class="copy-script-btn px-2 py-0.5 text-[10px] font-semibold bg-sky-600 hover:bg-sky-500 text-white rounded flex items-center gap-1 transition-all" data-script="${escapeHtml(guidance.plain_language_script)}">
+              <i data-lucide="copy" class="w-3 h-3"></i>
+              <span>Copy Script</span>
+            </button>
+          </div>
+          <p class="text-xs text-sky-100 italic leading-relaxed">
+            "${escapeHtml(guidance.plain_language_script)}"
+          </p>
+        </div>
+      ` : '';
+
+      const actionsBlock = guidance && guidance.action_steps && guidance.action_steps.length ? `
+        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 mb-3">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1.5 flex items-center gap-1.5">
+            <i data-lucide="list-checks" class="w-3.5 h-3.5 text-emerald-400"></i>
+            CSR Step-by-Step Resolution Actions:
+          </div>
+          <ul class="space-y-1 text-xs text-slate-300">
+            ${guidance.action_steps.map((act, i) => `
+              <li class="flex items-start gap-1.5">
+                <span class="font-mono text-sky-400 font-bold">${i+1}.</span>
+                <span>${escapeHtml(act)}</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+      ` : '';
 
       el.innerHTML = `
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white flex-shrink-0 shadow-md">
-          <i data-lucide="bot" class="w-4 h-4"></i>
+        <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-sky-600 to-cyan-500 flex items-center justify-center text-white flex-shrink-0 shadow-md">
+          <i data-lucide="headset" class="w-3.5 h-3.5"></i>
         </div>
-        <div class="max-w-3xl bg-slate-950/90 border border-slate-800/90 p-5 rounded-2xl rounded-tl-none shadow-xl text-xs sm:text-sm text-slate-200">
-          <div class="prose prose-invert max-w-none mb-3">
+        <div class="max-w-3xl bg-slate-950/90 border border-slate-800/90 p-4 rounded-2xl rounded-tl-none shadow-xl text-xs sm:text-sm text-slate-200">
+          ${scriptBlock}
+          ${actionsBlock}
+          <div class="prose prose-invert max-w-none text-xs leading-relaxed mb-3">
             ${renderedHtml}
           </div>
-          <div class="pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+          <div class="pt-2.5 border-t border-slate-800/80 flex flex-wrap items-center gap-1.5 text-[10px] text-slate-400">
             <span class="font-semibold text-slate-300 flex items-center gap-1">
-              <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-400"></i>
-              Grounded Sources:
+              <i data-lucide="shield-check" class="w-3 h-3 text-emerald-400"></i>
+              Grounded Plan Citations:
             </span>
-            ${citations.map((c, i) => `
-              <span class="px-2 py-0.5 bg-slate-900 border border-indigo-500/30 rounded text-indigo-300 font-mono text-[10px]">
+            ${data.citations.map((c, i) => `
+              <span class="px-2 py-0.5 bg-slate-900 border border-sky-500/30 rounded text-sky-300 font-mono text-[10px]">
                 [${i+1}] ${escapeHtml(c.id)}
               </span>
             `).join('')}
@@ -391,18 +468,34 @@
       `;
       chatStream.appendChild(el);
       lucide.createIcons();
+
+      // Hook up copy buttons
+      el.querySelectorAll('.copy-script-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const scriptText = btn.getAttribute('data-script');
+          navigator.clipboard.writeText(scriptText).then(() => {
+            btn.innerHTML = `<i data-lucide="check" class="w-3 h-3"></i><span>Copied!</span>`;
+            lucide.createIcons();
+            setTimeout(() => {
+              btn.innerHTML = `<i data-lucide="copy" class="w-3 h-3"></i><span>Copy Script</span>`;
+              lucide.createIcons();
+            }, 2000);
+          });
+        });
+      });
+
       chatStream.scrollTop = chatStream.scrollHeight;
     }
 
     function appendErrorMessage(msg) {
       const el = document.createElement('div');
-      el.className = "flex items-start space-x-3";
+      el.className = "flex items-start space-x-2.5";
       el.innerHTML = `
-        <div class="w-8 h-8 rounded-lg bg-rose-600 flex items-center justify-center text-white flex-shrink-0">
-          <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+        <div class="w-7 h-7 rounded-lg bg-rose-600 flex items-center justify-center text-white flex-shrink-0">
+          <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
         </div>
-        <div class="bg-rose-950/50 border border-rose-800 p-4 rounded-2xl rounded-tl-none text-xs text-rose-200">
-          <p class="font-bold mb-1">Query Execution Error</p>
+        <div class="bg-rose-950/50 border border-rose-800 p-3 rounded-2xl rounded-tl-none text-xs text-rose-200">
+          <p class="font-bold mb-0.5">Inquiry Resolution Error</p>
           <p>${escapeHtml(msg)}</p>
         </div>
       `;
@@ -416,41 +509,36 @@
       metricLlm.textContent = `${metrics.llm_time_ms} ms`;
       metricTotal.textContent = `${metrics.total_latency_ms} ms`;
       metricSources.textContent = metrics.sources_retrieved;
-      metricMode.textContent = metrics.search_mode === 'hybrid_semantic' ? 'Hybrid + Semantic Ranker' : 'Mock Grounded Store';
     }
 
     function updateCitationsDrawer(citations) {
-      citationCountBadge.textContent = `${citations.length} Sources`;
+      citationCountBadge.textContent = `${citations.length} Citations`;
       if (!citations || citations.length === 0) {
         citationsContainer.innerHTML = `
-          <div class="text-center p-4 text-xs text-slate-500">No sources retrieved.</div>
+          <div class="text-center p-4 text-xs text-slate-500">No policy documents retrieved.</div>
         `;
         return;
       }
 
       citationsContainer.innerHTML = citations.map((c, idx) => `
-        <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 hover:border-indigo-500/40 transition-all">
-          <div class="flex items-start justify-between gap-2 mb-1.5">
-            <span class="font-semibold text-xs text-white leading-tight flex items-center gap-1.5">
-              <span class="text-indigo-400 font-mono font-bold">[${idx+1}]</span>
+        <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 hover:border-sky-500/40 transition-all">
+          <div class="flex items-start justify-between gap-1.5 mb-1">
+            <span class="font-semibold text-xs text-white leading-tight flex items-center gap-1">
+              <span class="text-sky-400 font-mono font-bold">[${idx+1}]</span>
               ${escapeHtml(c.title)}
             </span>
-            <span class="px-1.5 py-0.5 text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded">
+            <span class="px-1.5 py-0.5 text-[9px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded">
               ${Math.round(c.score * 100)}% Match
             </span>
           </div>
 
-          <div class="flex items-center gap-2 mb-2 text-[10px] text-slate-400">
-            <span class="px-1.5 py-0.5 bg-slate-900 border border-slate-800 rounded text-slate-300 font-mono">${c.id}</span>
+          <div class="flex items-center gap-1.5 mb-1.5 text-[10px] text-slate-400">
+            <span class="px-1.5 py-0.2 bg-slate-900 border border-slate-800 rounded text-slate-300 font-mono">${c.id}</span>
             <span>•</span>
-            <span class="text-indigo-300 font-medium">${escapeHtml(c.department)}</span>
-            <span>•</span>
-            <span class="text-emerald-400 flex items-center gap-0.5">
-              <i data-lucide="check" class="w-3 h-3"></i> ${c.governance_status}
-            </span>
+            <span class="text-sky-300 font-medium">${escapeHtml(c.section || c.category)}</span>
           </div>
 
-          <p class="text-[11px] text-slate-300 bg-slate-900/60 p-2 rounded-lg border border-slate-800/60 leading-relaxed font-mono">
+          <p class="text-[10px] text-slate-300 bg-slate-900/60 p-2 rounded-lg border border-slate-800/60 leading-relaxed font-mono">
             "${escapeHtml(c.snippet)}"
           </p>
         </div>
@@ -469,12 +557,12 @@
           <div class="bg-slate-950/70 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
             <div>
               <div class="font-semibold text-xs text-white">${escapeHtml(d.title)}</div>
-              <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-2">
-                <span class="font-mono text-indigo-400">${d.id}</span>
+              <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1.5">
+                <span class="font-mono text-sky-400">${d.id}</span>
                 <span>•</span>
-                <span>${escapeHtml(d.category)}</span>
+                <span>${escapeHtml(d.section || d.category)}</span>
                 <span>•</span>
-                <span>Audit: ${d.last_reviewed}</span>
+                <span>Effective: ${d.last_reviewed}</span>
               </div>
             </div>
             <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded">

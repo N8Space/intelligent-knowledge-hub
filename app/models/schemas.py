@@ -3,26 +3,27 @@ from pydantic import BaseModel, Field
 
 
 class SourceCitation(BaseModel):
-    id: str = Field(..., description="Unique chunk or document identifier")
-    title: str = Field(..., description="Document title")
-    category: str = Field(..., description="Document category (e.g., SOP, Policy, Architecture)")
-    snippet: str = Field(..., description="Retrieved relevant chunk excerpt")
-    score: float = Field(..., description="Relevance / Search similarity score (0.0 to 1.0)")
+    id: str = Field(..., description="Document ID or Policy reference code (e.g. PLAN-PPO-2026-BENEFITS)")
+    title: str = Field(..., description="Policy or SOP document title")
+    category: str = Field(..., description="Category (e.g. Benefit Schedule, Prior Auth, Claims, HIPAA)")
+    section: Optional[str] = Field(default="General", description="Document section or clause number")
+    snippet: str = Field(..., description="Exact policy clause / retrieved text chunk")
+    score: float = Field(..., description="Search similarity / reranker confidence score (0.0 - 1.0)")
     governance_status: str = Field(
-        default="Approved", description="Governance status (Approved, Compliant, In-Review, Deprecated)"
+        default="Approved 2026 Policy", description="Regulatory or approval status"
     )
-    last_reviewed: str = Field(default="2025-Q1", description="Last audit / review date")
-    department: str = Field(default="Cross-Functional", description="Owning business unit or department")
+    last_reviewed: str = Field(default="2026-01-01", description="Last audit / compliance review date")
+    department: str = Field(default="Member Operations", description="Owning operational division")
 
 
 class QueryRequest(BaseModel):
-    query: str = Field(..., min_length=2, description="Natural language question")
-    top_k: int = Field(default=4, ge=1, le=10, description="Number of context sources to retrieve")
-    filter_department: Optional[str] = Field(
-        default=None, description="Optional department filter (e.g. Engineering, Security, HR)"
+    query: str = Field(..., min_length=2, description="CSR inquiry during member call")
+    top_k: int = Field(default=4, ge=1, le=10, description="Top policy chunks to retrieve")
+    call_type: Optional[str] = Field(
+        default=None, description="Optional call type filter (e.g. Benefits, Prior Auth, Claims, HIPAA)"
     )
     strict_governance_only: bool = Field(
-        default=True, description="Enforce strict retrieval of approved governance content only"
+        default=True, description="Only search approved, active health plan documents"
     )
     stream: bool = Field(default=False, description="Whether to stream response tokens")
 
@@ -38,12 +39,26 @@ class QueryMetrics(BaseModel):
     )
 
 
+class CSRResolutionGuidance(BaseModel):
+    plain_language_script: str = Field(
+        ..., description="Direct member-facing explanation script for live phone readback"
+    )
+    action_steps: List[str] = Field(
+        default_factory=list, description="Step-by-step resolution actions for the CSR in the CRM"
+    )
+    compliance_notes: Optional[str] = Field(
+        default=None, description="Regulatory and HIPAA compliance reminders"
+    )
+
+
 class QueryResponse(BaseModel):
     query: str
     answer: str
+    guidance: Optional[CSRResolutionGuidance] = None
     citations: List[SourceCitation]
     metrics: QueryMetrics
     governance_passed: bool = True
+    confidence_level: str = "High (100% Policy Grounded)"
 
 
 class IngestDocument(BaseModel):

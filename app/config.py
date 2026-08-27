@@ -6,7 +6,7 @@ import json
 
 class Settings(BaseSettings):
     # App Settings
-    APP_NAME: str = "Intelligent Knowledge Hub"
+    APP_NAME: str = "MemberAssist: Health Insurance Knowledge Hub"
     APP_ENV: str = "production"
     DEBUG: bool = False
     PORT: int = 8000
@@ -21,8 +21,8 @@ class Settings(BaseSettings):
     # Azure AI Search Configuration
     AZURE_SEARCH_SERVICE_ENDPOINT: str = ""
     AZURE_SEARCH_API_KEY: str = ""
-    AZURE_SEARCH_INDEX_NAME: str = "enterprise-knowledge-index"
-    AZURE_SEARCH_SEMANTIC_CONFIG_NAME: str = "knowledge-semantic-config"
+    AZURE_SEARCH_INDEX_NAME: str = "health-plan-knowledge-index"
+    AZURE_SEARCH_SEMANTIC_CONFIG_NAME: str = "health-plan-semantic-config"
 
     # Azure AI Foundry / Azure OpenAI Model Configuration
     AZURE_OPENAI_ENDPOINT: str = ""

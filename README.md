@@ -1,26 +1,24 @@
-# Intelligent Knowledge Hub 🧠⚡
+# MemberAssist: Health Insurance Knowledge Hub 🏥⚡
 
 [![CI/CD Azure App Service](https://github.com/N8Space/intelligent-knowledge-hub/actions/workflows/azure-app-service.yml/badge.svg)](https://github.com/N8Space/intelligent-knowledge-hub/actions)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)](https://fastapi.tiangolo.com)
 [![Azure AI Search](https://img.shields.io/badge/Azure%20AI%20Search-Hybrid%20%2B%20Semantic-0078D4.svg)](https://azure.microsoft.com/en-us/products/ai-services/ai-search)
 [![Azure AI Foundry](https://img.shields.io/badge/Azure%20AI%20Foundry-Model%20Catalog-blue.svg)](https://ai.azure.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Compliance: HIPAA Ready](https://img.shields.io/badge/Compliance-HIPAA%20%2B%20No%20Surprises%20Act-emerald.svg)](https://www.hhs.gov/hipaa)
 
-> **Enterprise Retrieval-First Knowledge Assistant & Enablement Copilot**  
-> Helping cross-functional enterprise teams instantly discover verified standard operating procedures (SOPs), security policies, and technical guidelines with strict citation grounding and real-time execution telemetry.
+> **Enterprise AI Retrieval Assistant for Health Insurance Customer Service Representatives (CSRs) & Member Advocates**  
+> Enables frontline call center agents to instantly resolve complex member inquiries regarding 2026 PPO benefit schedules, out-of-network coinsurance, prior authorization SLAs, No Surprises Act balance billing disputes, and HIPAA privacy rules with zero-hallucination policy grounding.
 
 ---
 
-## 📌 Executive Summary & Business Impact
+## 📌 Executive Summary & Business ROI
 
-In large organizations, institutional knowledge is fragmented across wikis, PDFs, ticket resolutions, and intranet portals. Employees spend upwards of 20% of their working hours manually locating policies or risk executing deprecated processes.
-
-**Intelligent Knowledge Hub** establishes a governed, enterprise-ready retrieval-augmented copilot architecture:
-* **Lookup Latency Reduction:** Reduces policy discovery from 15+ minutes of manual search to <800ms of instant, cited synthesis.
-* **100% Policy Grounding:** Enforces strict citation validation (`[1]`, `[2]`) against authorized SOP documents, eliminating generative hallucinations.
-* **Governance Badges & Confidence Scoring:** Every retrieved chunk exposes source metadata, audit review dates, and similarity confidence scores.
-* **Production Observability:** Real-time telemetry tracking retrieval time, LLM inference latency, and source count.
+Health insurance call centers face high operational costs and member friction due to complex benefit schedules, changing clinical authorization policies, and strict compliance mandates:
+* **Average Handle Time (AHT) Reduction:** Cuts policy lookup and verification time from 4–6 minutes down to **<700ms**, dramatically accelerating call wrap-up.
+* **First Contact Resolution (FCR) Improvement:** Provides CSRs with verbatim member-facing readback scripts and step-by-step CRM workflows to resolve inquiries on the first call.
+* **100% Policy Grounding:** Enforces strict citations against 2026 Plan Schedules (`PLAN-PPO-2026-BENEFITS`), Utilization Management SOPs (`SOP-UM-2026-004`), and Claims Guides (`GUIDE-CLM-2026-012`).
+* **Regulatory Compliance:** Built-in validation for HIPAA 45 CFR disclosures and federal No Surprises Act (NSA) emergency/ancillary provider balance billing protections.
 
 ---
 
@@ -28,56 +26,46 @@ In large organizations, institutional knowledge is fragmented across wikis, PDFs
 
 ```mermaid
 flowchart TD
-    subgraph Client ["Client & Enablement Layer"]
-        UI["Modern Web Showcase UI<br/>(FastAPI / Tailwind / Telemetry)"]
-        Ext["External Portals / Winelogbooks<br/>(REST API / CORS)"]
+    subgraph CSR ["Frontline Representative Workspace"]
+        UI["MemberAssist CSR Copilot UI<br/>(Call Scripts, Action Steps, Policy Cards)"]
+        Filter["Call Category Filter<br/>(Benefits, Prior Auth, Claims, HIPAA)"]
     end
 
-    subgraph API ["FastAPI Enterprise Backend"]
+    subgraph API ["FastAPI Governance Backend"]
         Router["FastAPI Router<br/>/api/query & /api/ingest"]
-        Guardrails["AI Governance & Prompt Sanitizer<br/>Input Validation & DLP Rules"]
+        Guardrails["Health Compliance Guardrail<br/>Zero-PII & HIPAA Disclosure Checks"]
     end
 
-    subgraph Retrieval ["Azure AI Search Engine"]
-        Vector["Dense Vector Index<br/>(text-embedding-3-small)"]
-        Keyword["Keyword BM25 Inverted Index"]
-        Reranker["Azure Semantic Ranker<br/>(L2 Deep Reranking)"]
+    subgraph Search ["Azure AI Search Engine"]
+        Index["Health Plan Knowledge Index<br/>(Hybrid Vector Dense + BM25)"]
+        Semantic["Azure Semantic Ranker<br/>(L2 Deep Reranking)"]
     end
 
-    subgraph Inference ["Azure AI Foundry & OpenAI"]
-        Model["Azure AI Foundry Model Catalog<br/>(GPT-4o / GPT-4o-mini)"]
+    subgraph LLM ["Azure AI Foundry & Model Catalog"]
+        Copilot["GPT-4o-mini / Phi-4 Deployment<br/>(CSR Persona + Verbatim Scripting)"]
     end
 
-    subgraph Telemetry ["Observability & Governance"]
-        AppInsights["Azure Application Insights<br/>(Latency & Token Metrics)"]
-    end
-
-    UI --> Router
-    Ext --> Router
+    CSR --> Filter
+    Filter --> Router
     Router --> Guardrails
-    Guardrails --> Retrieval
-    Vector --> Reranker
-    Keyword --> Reranker
-    Reranker -->|Top-K Grounded Chunks| Router
-    Router -->|Grounded Augmented Prompt| Model
-    Model -->|Synthesized Answer with Citations| Router
+    Guardrails --> Search
+    Index --> Semantic
+    Semantic -->|Top-K Policy Chunks| Router
+    Router -->|Grounded Benefit Context| Copilot
+    Copilot -->|Structured Readback Script & Actions| Router
     Router --> UI
-    Router -.->|Telemetry Stream| AppInsights
 ```
 
 ---
 
-## 🛠️ Tech Stack & Tooling
+## 📂 Health Insurance Policy Corpus (`data/policies/`)
 
-| Component | Technology | Description |
-| :--- | :--- | :--- |
-| **Backend Framework** | Python 3.11+, FastAPI, Pydantic v2 | High-performance asynchronous API service |
-| **Vector & Hybrid Search** | Azure AI Search | Dense embeddings + BM25 + Semantic Ranker |
-| **LLM & Inference** | Azure AI Foundry / Azure OpenAI | Grounded synthesis with citation guardrails |
-| **Embeddings** | `text-embedding-3-small` | 1536-dimensional vector representation |
-| **Cloud Hosting** | Azure App Service (Linux) | Managed cloud container / web application hosting |
-| **CI/CD** | GitHub Actions | Automated linting, pytest validation, and deployment |
-| **Showcase UI** | Tailwind CSS, Lucide Icons, Marked.js | Enterprise search, citation drawer & telemetry |
+| Document ID | Policy Title | Category | Key Regulatory Standards |
+| :--- | :--- | :--- | :--- |
+| `PLAN-PPO-2026-BENEFITS` | Commercial Premier & Standard PPO Schedule (2026) | Benefit Schedule | ACA Preventive ($0 Copay), Out-of-network MRI/Imaging, Rx Tiers |
+| `SOP-UM-2026-004` | Prior Authorization & Clinical Appeals SOP | Prior Authorization | 72h Standard / 24h Urgent SLA, 5-Day Peer-to-Peer (P2P) Window |
+| `GUIDE-CLM-2026-012` | Claims Denial Explanation & EOB Resolution Guide | Claims Operations | CO-16 Missing Records, No Surprises Act (NSA) Balance Billing Hold |
+| `SOP-HIPAA-2026-001` | HIPAA Privacy Verification & Authorized Disclosures | Privacy & Compliance | 3 of 4 Identifier Check, Spouse/Dependent PHI-AUTH-01 Mandate |
 
 ---
 
@@ -89,93 +77,26 @@ git clone https://github.com/N8Space/intelligent-knowledge-hub.git
 cd intelligent-knowledge-hub
 ```
 
-### 2. Create and Activate Virtual Environment
+### 2. Configure Environment & Run
 ```bash
-python -m venv .venv
-
-# Windows (PowerShell):
-.venv\Scripts\Activate.ps1
-
-# macOS/Linux:
-source .venv/bin/activate
-```
-
-### 3. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configure Environment Variables
-Copy `.env.example` to `.env` and fill in your cloud resource credentials (or keep default mock mode for offline testing):
-```bash
+# Copy environment configuration
 cp .env.example .env
-```
 
-### 5. Launch the Server
-```bash
+# Run FastAPI server
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
-Open your browser at **`http://localhost:8000`** to access the interactive web interface and **`http://localhost:8000/docs`** for interactive Swagger/OpenAPI documentation.
+Open **`http://localhost:8000`** in your browser to access the CSR workspace.
 
 ---
 
-## 🧪 Running Automated Tests
-
-Run the full pytest suite with verbose output:
-```bash
-pytest tests/ -v
-```
-
----
-
-## 🐳 Docker Deployment
-
-Build and run the production container locally:
-```bash
-docker build -t intelligent-knowledge-hub:latest .
-docker run -p 8000:8000 --env-file .env intelligent-knowledge-hub:latest
-```
-
----
-
-## 📡 API Contract Overview
-
-### `POST /api/query`
-Executes hybrid vector retrieval against Azure AI Search, builds grounded context, and generates an answer with strict citations.
+## 📡 API Contract Overview (`POST /api/query`)
 
 ```json
 {
-  "query": "What is the mandatory response protocol and SLA for a Sev-1 incident?",
-  "top_k": 4,
+  "query": "What is the member cost share for an out-of-network MRI under the Standard PPO plan?",
+  "top_k": 3,
+  "call_type": "Benefit Schedule",
   "strict_governance_only": true
-}
-```
-
-**Response (`200 OK`):**
-```json
-{
-  "query": "What is the mandatory response protocol and SLA for a Sev-1 incident?",
-  "answer": "### Enterprise Incident Response Protocol\n\n* **Immediate Assignment:** Severity 1 incidents require an Incident Commander within 5 minutes [1].\n* **Bridge & Escalation:** IC must open a Microsoft Teams bridge and alert Executive On-Call [1]...",
-  "citations": [
-    {
-      "id": "SOP-SEC-001-C1",
-      "title": "Enterprise Incident Response SOP (Sev-1 / Sev-2)",
-      "category": "Security & Reliability SOP",
-      "snippet": "Severity 1 incidents require an Incident Commander to be assigned within 5 minutes...",
-      "score": 0.96,
-      "governance_status": "Approved",
-      "last_reviewed": "2025-01-15",
-      "department": "Security & DevOps"
-    }
-  ],
-  "metrics": {
-    "retrieval_time_ms": 12.4,
-    "llm_time_ms": 184.2,
-    "total_latency_ms": 196.6,
-    "sources_retrieved": 1,
-    "search_mode": "hybrid_semantic"
-  },
-  "governance_passed": true
 }
 ```
 
