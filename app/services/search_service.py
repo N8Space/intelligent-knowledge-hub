@@ -273,23 +273,3 @@ class SearchService:
 
 
 search_service = SearchService()
-
-            # Store in in-memory store for instant demonstration capability
-            for idx, chunk in enumerate(chunks):
-                chunk_id = f"{doc.id or 'DOC'}-C{idx+1}"
-                MOCK_KNOWLEDGE_STORE.append(
-                    {
-                        "id": chunk_id,
-                        "title": doc.title,
-                        "category": doc.category,
-                        "department": doc.department,
-                        "governance_status": doc.governance_status,
-                        "last_reviewed": "Just Now",
-                        "content": chunk,
-                    }
-                )
-
-        return len(documents), total_chunks
-
-
-search_service = SearchService()
