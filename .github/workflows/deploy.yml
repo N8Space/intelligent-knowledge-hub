@@ -1,0 +1,72 @@
+name: Build, Test & Deploy to Azure App Service
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: intelligent-knowledge-hub
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  quality-gate:
+    name: Quality Gate & Test Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Code Quality & Linting (Ruff)
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Execute Unit & Integration Tests (Pytest)
+        run: |
+          pytest -v --tb=short tests/
+
+  deploy:
+    name: Deploy to Azure App Service
+    needs: quality-gate
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Prepare Artifact Package
+        run: |
+          mkdir -p deploy_pkg
+          cp -r main.py ingest.py requirements.txt pyproject.toml static data tests deploy_pkg/ || true
+          cd deploy_pkg
+          zip -r ../release.zip . -x "*.pyc" "__pycache__/*" ".pytest_cache/*"
+
+      - name: Deploy to Azure WebApp (Linux B1)
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: release.zip

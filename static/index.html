@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intelligent Knowledge Hub | Enterprise Zero-Trust RAG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Navigation Bar -->
+    <header class="top-navbar">
+      <div class="nav-brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="brand-info">
+          <div class="brand-title">
+            <span>Intelligent Knowledge Hub</span>
+            <span class="badge-tag">RAG v1.0</span>
+          </div>
+          <p class="brand-subtitle">Enterprise Zero-Trust RAG & AI Enablement Platform</p>
+        </div>
+      </div>
+
+      <div class="nav-meta">
+        <div id="system-status-badge" class="status-pill status-loading">
+          <span class="status-dot"></span>
+          <span id="system-status-text">Probing System Readiness...</span>
+        </div>
+        <div class="credential-pill" title="Authenticated via DefaultAzureCredential with scoped token provider">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span>Entra ID Passwordless</span>
+        </div>
+        <a href="https://github.com/N8Space/intelligent-knowledge-hub" target="_blank" rel="noopener noreferrer" class="nav-btn-icon" title="View Source on GitHub">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="app-main">
+      <div class="content-grid">
+        
+        <!-- Left Section: Query & Answer Area -->
+        <section class="rag-workbench">
+          <!-- Search & Prompt Bar -->
+          <div class="card search-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-step-badge">1</span>
+                <h2>Enterprise Knowledge Retrieval</h2>
+              </div>
+              <div class="search-mode-indicator">
+                <span class="dot-indicator"></span> Hybrid Search (BM25 + RRF Vector)
+              </div>
+            </div>
+
+            <form id="rag-query-form" class="query-form">
+              <div class="search-input-wrapper">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <textarea 
+                  id="query-input" 
+                  rows="2" 
+                  placeholder="How can I help? You can ask for guidance like identity verification, auto-pay setup, escalations, balance billing, how to enter a policy code. You can also select a common prompt below..."
+                  required
+                ></textarea>
+                <div class="input-actions">
+                  <div class="top-k-selector">
+                    <label for="top-k-select">Top Context:</label>
+                    <select id="top-k-select">
+                      <option value="2">2 Chunks</option>
+                      <option value="3" selected>3 Chunks</option>
+                      <option value="5">5 Chunks</option>
+                      <option value="8">8 Chunks</option>
+                    </select>
+                  </div>
+                  <button type="submit" id="submit-btn" class="btn-primary">
+                    <span class="btn-text">Execute Query</span>
+                    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <!-- Sample Prompts -->
+            <div class="sample-prompts-container">
+              <span class="sample-title">Try Common Queries:</span>
+              <div class="sample-chips">
+                <button type="button" class="sample-chip" data-prompt="What are the mandatory 3-point demographic verification requirements and caller authority limits for adult dependents under SOP-101?">
+                  🔐 Caller Auth & Verification
+                </button>
+                <button type="button" class="sample-chip" data-prompt="What is the exact verbatim script for setting up recurring EFT over the phone, and what are the system cut-off windows under SOP-102?">
+                  💳 Auto-Pay & EFT Mandate
+                </button>
+                <button type="button" class="sample-chip" data-prompt="What are the immediate zero-tolerance warm transfer triggers and tiered routing escalation steps under SOP-104?">
+                  🚨 Escalation & Warm Transfers
+                </button>
+                <button type="button" class="sample-chip" data-prompt="How does the No Surprises Act protect members from out-of-network emergency balance bills and what is the CSR dispute workflow under SOP-108?">
+                  ⚖️ Surprise Billing & NSA Rules
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Answer & Grounding Card -->
+          <div id="response-card" class="card response-card hidden">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-step-badge">2</span>
+                <h2>Grounded Synthesis Response</h2>
+              </div>
+              <div class="model-badge">
+                <span class="sparkle">✨</span> Model: <strong id="active-model-name">gpt-5.4-mini</strong>
+              </div>
+            </div>
+
+            <!-- Loading Skeleton -->
+            <div id="response-loading" class="response-loading hidden">
+              <div class="skeleton-line full"></div>
+              <div class="skeleton-line medium"></div>
+              <div class="skeleton-line long"></div>
+              <div class="skeleton-line short"></div>
+              <div class="loading-telemetry-hint">
+                <span class="spinner"></span> Vectorizing query with <code>text-embedding-3-small</code> & synthesizing grounded response...
+              </div>
+            </div>
+
+            <!-- Answer Content -->
+            <div id="answer-container" class="answer-container">
+              <div id="answer-text" class="answer-markdown"></div>
+
+              <!-- Citations Header Row -->
+              <div class="citations-section">
+                <div class="citations-header">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                  <span>Verified Source Documents Cited:</span>
+                </div>
+                <div id="citations-list" class="citations-tags"></div>
+              </div>
+
+              <!-- Interactive Feedback Flywheel Panel -->
+              <div class="feedback-flywheel-container">
+                <div class="feedback-prompt-row">
+                  <div class="feedback-question">
+                    <span>Was this grounded answer accurate and helpful?</span>
+                  </div>
+                  <div class="feedback-actions">
+                    <button id="btn-feedback-like" class="btn-thumb btn-like" title="Mark as accurate (adds to Golden Evaluation Set)">
+                      <span class="thumb-icon">👍</span>
+                      <span>Accurate</span>
+                    </button>
+                    <button id="btn-feedback-dislike" class="btn-thumb btn-dislike" title="Report issue / Provide correction (adds to DPO Alignment Set)">
+                      <span class="thumb-icon">👎</span>
+                      <span>Suggest Correction</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Positive Feedback Confirmation -->
+                <div id="feedback-success-banner" class="feedback-alert alert-success hidden">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <div>
+                    <strong>Thank you!</strong> This verified response was added to the <code>tests/golden_eval_set.jsonl</code> benchmark suite.
+                  </div>
+                </div>
+
+                <!-- Negative Feedback / Human Correction Drawer -->
+                <div id="feedback-drawer" class="feedback-drawer hidden">
+                  <div class="drawer-header">
+                    <h4>Direct Preference Optimization (DPO) Human-in-the-Loop Correction</h4>
+                    <p>Help refine our model alignments by specifying any deficiencies or entering the expected ground-truth.</p>
+                  </div>
+
+                  <div class="feedback-reasons-grid">
+                    <label class="reason-chip">
+                      <input type="radio" name="feedback-reason" value="Inaccurate Fact">
+                      <span>Inaccurate Fact</span>
+                    </label>
+                    <label class="reason-chip">
+                      <input type="radio" name="feedback-reason" value="Missing Critical Context">
+                      <span>Missing Critical Context</span>
+                    </label>
+                    <label class="reason-chip">
+                      <input type="radio" name="feedback-reason" value="Wrong Document Cited">
+                      <span>Wrong Document Cited</span>
+                    </label>
+                    <label class="reason-chip">
+                      <input type="radio" name="feedback-reason" value="Hallucination / Verbose">
+                      <span>Hallucination / Verbose</span>
+                    </label>
+                  </div>
+
+                  <div class="correction-field">
+                    <label for="user-correction-input">Human Ground Truth / Expected Answer:</label>
+                    <textarea 
+                      id="user-correction-input" 
+                      rows="3" 
+                      placeholder="Write the preferred exact ground-truth answer for DPO/SFT dataset pairs..."
+                    ></textarea>
+                  </div>
+
+                  <div class="drawer-actions">
+                    <button type="button" id="cancel-correction-btn" class="btn-secondary">Cancel</button>
+                    <button type="button" id="submit-correction-btn" class="btn-accent">
+                      <span>Submit to DPO Dataset</span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Context Passages Inspect Drawer -->
+              <details class="context-inspector">
+                <summary>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  </svg>
+                  <span>Inspect Retrieved Context Chunks & Relevance Scores (<span id="retrieved-count">0</span> passages)</span>
+                </summary>
+                <div id="context-passages-list" class="passages-grid"></div>
+              </details>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right Section: AI Observability & LLMOps Sidebar -->
+        <aside class="observability-sidebar">
+          
+          <!-- FinOps & Telemetry Card -->
+          <div class="card metrics-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+                <h3>Real-Time FinOps & Telemetry</h3>
+              </div>
+              <span class="live-pill">Live</span>
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-box">
+                <div class="metric-label">Retrieval Latency</div>
+                <div id="metric-retrieval-time" class="metric-value">-- ms</div>
+                <div class="metric-sub">Embedding + Hybrid RRF</div>
+              </div>
+
+              <div class="metric-box">
+                <div class="metric-label">LLM Latency</div>
+                <div id="metric-llm-time" class="metric-value">-- ms</div>
+                <div class="metric-sub">gpt-5.4-mini Inference</div>
+              </div>
+
+              <div class="metric-box highlight">
+                <div class="metric-label">Total E2E Latency</div>
+                <div id="metric-total-time" class="metric-value">-- ms</div>
+                <div class="metric-sub">API Roundtrip</div>
+              </div>
+
+              <div class="metric-box">
+                <div class="metric-label">Token Consumption</div>
+                <div id="metric-tokens" class="metric-value">--</div>
+                <div id="metric-tokens-sub" class="metric-sub">Prompt: - | Completion: -</div>
+              </div>
+            </div>
+
+            <div class="cost-callout">
+              <div class="cost-header">
+                <span>Estimated Unit Query Cost:</span>
+                <span id="metric-query-cost" class="cost-amount">$0.000000</span>
+              </div>
+              <div class="cost-bar-container">
+                <div id="cost-progress-bar" class="cost-bar" style="width: 15%"></div>
+              </div>
+              <div class="cost-footnote">
+                <code>text-embedding-3-small</code> ($0.02/1M) + <code>gpt-5.4-mini</code> ($0.15/1M in, $0.60/1M out)
+              </div>
+            </div>
+          </div>
+
+          <!-- LLMOps Continuous Learning Flywheel -->
+          <div class="card flywheel-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                </svg>
+                <h3>Active Learning Flywheel</h3>
+              </div>
+              <button id="refresh-stats-btn" class="icon-btn-small" title="Refresh LLMOps Counts">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="flywheel-stats">
+              <div class="flywheel-row">
+                <div class="stat-meta">
+                  <span class="stat-icon golden">🎯</span>
+                  <div>
+                    <div class="stat-name">Golden Evaluation Set</div>
+                    <div class="stat-desc">tests/golden_eval_set.jsonl</div>
+                  </div>
+                </div>
+                <div id="stat-golden-count" class="stat-badge golden">0</div>
+              </div>
+
+              <div class="flywheel-row">
+                <div class="stat-meta">
+                  <span class="stat-icon dpo">🔄</span>
+                  <div>
+                    <div class="stat-name">DPO / SFT Preference Pairs</div>
+                    <div class="stat-desc">data/dpo_tuning_set.jsonl</div>
+                  </div>
+                </div>
+                <div id="stat-dpo-count" class="stat-badge dpo">0</div>
+              </div>
+
+              <div class="flywheel-row">
+                <div class="stat-meta">
+                  <span class="stat-icon total">📊</span>
+                  <div>
+                    <div class="stat-name">Total Feedback Collected</div>
+                    <div class="stat-desc">User Sentiment Logs</div>
+                  </div>
+                </div>
+                <div id="stat-total-feedback" class="stat-badge total">0</div>
+              </div>
+
+              <div class="flywheel-row">
+                <div class="stat-meta">
+                  <span class="stat-icon rate">⭐</span>
+                  <div>
+                    <div class="stat-name">User Grounded Satisfaction</div>
+                    <div class="stat-desc">Positive Evaluation Ratio</div>
+                  </div>
+                </div>
+                <div id="stat-satisfaction-rate" class="stat-badge rate">100%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Business Outcome & Competency KPIs -->
+          <div class="card kpi-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <h3>Business Value & Architecture KPIs</h3>
+              </div>
+            </div>
+
+            <div class="kpi-list">
+              <div class="kpi-item">
+                <div class="kpi-header-row">
+                  <span>First Contact Resolution (FCR)</span>
+                  <span class="kpi-val positive">94.2% (Target: 85%)</span>
+                </div>
+                <div class="kpi-track"><div class="kpi-fill green" style="width: 94%"></div></div>
+              </div>
+
+              <div class="kpi-item">
+                <div class="kpi-header-row">
+                  <span>Search Time Reduction</span>
+                  <span class="kpi-val positive">-72% (Avg 2.4s)</span>
+                </div>
+                <div class="kpi-track"><div class="kpi-fill blue" style="width: 72%"></div></div>
+              </div>
+
+              <div class="kpi-item">
+                <div class="kpi-header-row">
+                  <span>Zero-Trust Credential Violations</span>
+                  <span class="kpi-val highlight">0 (100% Managed Identity)</span>
+                </div>
+                <div class="kpi-track"><div class="kpi-fill purple" style="width: 100%"></div></div>
+              </div>
+            </div>
+
+            <div class="certification-footer">
+              <span class="cert-tag">Microsoft AI-103</span>
+              <span class="cert-tag">Microsoft AZ-104</span>
+              <span class="cert-tag">Azure B1 Zero-Added Cost</span>
+            </div>
+          </div>
+
+        </aside>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div class="footer-content">
+        <p><strong>Intelligent Knowledge Hub</strong> &copy; 2026 — Enterprise RAG Architecture designed for Azure Linux App Service, Azure AI Search, and Azure OpenAI.</p>
+        <div class="footer-links">
+          <a href="/docs" target="_blank">Swagger OpenAPI Docs</a>
+          <span>&bull;</span>
+          <a href="/health/ready" target="_blank">Readiness Probe</a>
+          <span>&bull;</span>
+          <a href="/health/live" target="_blank">Liveness Probe</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

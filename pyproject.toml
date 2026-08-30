@@ -1,0 +1,18 @@
+[project]
+name = "intelligent-knowledge-hub"
+version = "1.0.0"
+description = "Enterprise Zero-Trust RAG Knowledge Hub with Azure AI Search, Azure OpenAI, and Active Learning Flywheel"
+readme = "README.md"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
