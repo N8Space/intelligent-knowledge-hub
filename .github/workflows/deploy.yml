@@ -40,7 +40,7 @@ jobs:
 
       - name: Execute Unit & Integration Tests (Pytest)
         run: |
-          pytest -v --tb=short tests/
+          python -m pytest -v --tb=short tests/
 
   deploy:
     name: Deploy to Azure App Service
