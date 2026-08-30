@@ -47,6 +47,9 @@ jobs:
     needs: quality-gate
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout Source Code
@@ -64,9 +67,15 @@ jobs:
           cd deploy_pkg
           zip -r ../release.zip . -x "*.pyc" "__pycache__/*" ".pytest_cache/*"
 
+      - name: Authenticate to Azure via OpenID Connect (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
       - name: Deploy to Azure WebApp (Linux B1)
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: release.zip
