@@ -89,36 +89,60 @@ def get_azure_credential() -> DefaultAzureCredential:
 
 
 def get_openai_client() -> AzureOpenAI:
-    """Initializes AzureOpenAI client with Entra ID Bearer Token authentication."""
+    """Initializes AzureOpenAI client with Entra ID Bearer Token authentication, falling back to API key if present."""
     global _openai_client, _token_provider
     if _openai_client is None:
-        try:
-            credential = get_azure_credential()
-            if _token_provider is None:
-                _token_provider = get_bearer_token_provider(credential, "https://cognitiveservices.azure.com/.default")
+        api_key = os.getenv("AZURE_OPENAI_API_KEY")
+        if api_key and api_key.strip():
             _openai_client = AzureOpenAI(
                 azure_endpoint=OPENAI_ENDPOINT,
-                azure_ad_token_provider=_token_provider,
+                api_key=api_key.strip(),
                 api_version=OPENAI_API_VERSION,
             )
-            logger.info("AzureOpenAI client initialized with DefaultAzureCredential.")
-        except Exception as ex:
-            logger.warning(f"Unable to initialize AzureOpenAI client immediately: {ex}")
-            raise
+            logger.info("AzureOpenAI client initialized with API key.")
+        else:
+            try:
+                credential = get_azure_credential()
+                if _token_provider is None:
+                    _token_provider = get_bearer_token_provider(
+                        credential, "https://cognitiveservices.azure.com/.default"
+                    )
+                _openai_client = AzureOpenAI(
+                    azure_endpoint=OPENAI_ENDPOINT,
+                    azure_ad_token_provider=_token_provider,
+                    api_version=OPENAI_API_VERSION,
+                )
+                logger.info("AzureOpenAI client initialized with DefaultAzureCredential.")
+            except Exception as ex:
+                logger.warning(f"Unable to initialize AzureOpenAI client immediately: {ex}")
+                raise
     return _openai_client
 
 
 def get_search_client() -> SearchClient:
-    """Initializes Azure AI Search client with DefaultAzureCredential."""
+    """Initializes Azure AI Search client with DefaultAzureCredential, falling back to API key if present."""
     global _search_client
     if _search_client is None:
-        try:
-            credential = get_azure_credential()
-            _search_client = SearchClient(endpoint=SEARCH_ENDPOINT, index_name=SEARCH_INDEX_NAME, credential=credential)
-            logger.info(f"Azure SearchClient initialized for index '{SEARCH_INDEX_NAME}'.")
-        except Exception as ex:
-            logger.warning(f"Unable to initialize SearchClient immediately: {ex}")
-            raise
+        search_key = os.getenv("AZURE_SEARCH_API_KEY")
+        if search_key and search_key.strip():
+            from azure.core.credentials import AzureKeyCredential
+
+            _search_client = SearchClient(
+                endpoint=SEARCH_ENDPOINT,
+                index_name=SEARCH_INDEX_NAME,
+                credential=AzureKeyCredential(search_key.strip()),
+            )
+            logger.info(f"Azure SearchClient initialized for index '{SEARCH_INDEX_NAME}' with AzureKeyCredential.")
+        else:
+            try:
+                credential = get_azure_credential()
+                _search_client = SearchClient(
+                    endpoint=SEARCH_ENDPOINT, index_name=SEARCH_INDEX_NAME, credential=credential
+                )
+                logger.info(f"Azure SearchClient initialized for index '{SEARCH_INDEX_NAME}'.")
+            except Exception as ex:
+                logger.warning(f"Unable to initialize SearchClient immediately: {ex}")
+                raise
     return _search_client
 
 
