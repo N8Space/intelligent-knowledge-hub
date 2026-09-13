@@ -223,3 +223,61 @@ def test_serve_ui_root():
     response = client.get("/")
     assert response.status_code == 200
     assert "Intelligent Knowledge Hub" in response.text
+
+
+def test_prompt_rag_success():
+    """Verify POST /prompt executes with multi-turn history and returns conversational response."""
+    mock_openai_client = MagicMock()
+    mock_embed_res = MagicMock()
+    mock_embed_res.data = [MagicMock(embedding=[0.05] * 1536)]
+    mock_embed_res.usage = MagicMock(total_tokens=10)
+    mock_openai_client.embeddings.create.return_value = mock_embed_res
+
+    mock_chat_res = MagicMock()
+    mock_choice = MagicMock()
+    mock_choice.message.content = "Under SOP-101, verify the caller by asking for full name, DOB, and member ID."
+    mock_chat_res.choices = [mock_choice]
+    mock_chat_res.usage = MagicMock(prompt_tokens=200, completion_tokens=35, total_tokens=235)
+    mock_openai_client.chat.completions.create.return_value = mock_chat_res
+
+    mock_search_client = MagicMock()
+    mock_search_client.search.return_value = [
+        {
+            "id": "sop_101_chunk_1",
+            "title": "sop-101_caller_verification.pdf",
+            "content": "Verify member identity using 3-point demographic verification.",
+            "@search.score": 0.033,
+        }
+    ]
+
+    with (
+        patch("main.get_search_client", return_value=mock_search_client),
+        patch("main.get_openai_client", return_value=mock_openai_client),
+    ):
+        payload = {
+            "prompt": "How do I verify a caller before giving account details?",
+            "top_k": 2,
+            "history": [
+                {"role": "user", "content": "Hi, I need help with verification."},
+                {"role": "assistant", "content": "I'd be glad to help with caller verification."},
+            ],
+        }
+        response = client.post("/prompt", json=payload)
+        assert response.status_code == 200
+        data = response.json()
+        assert "SOP-101" in data["answer"]
+        assert len(data["citations"]) == 1
+        assert data["metrics"]["total_tokens"] == 235
+
+
+def test_kpi_metrics_endpoint():
+    """Verify GET /metrics/kpis returns live operational KPI metrics."""
+    response = client.get("/metrics/kpis")
+    assert response.status_code == 200
+    data = response.json()
+    assert "first_contact_resolution_pct" in data
+    assert "avg_latency_ms" in data
+    assert "search_time_reduction_pct" in data
+    assert "zero_trust_violations" in data
+    assert "auth_mode" in data
+    assert "total_prompts_session" in data

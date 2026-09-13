@@ -1,47 +1,34 @@
 /**
- * Intelligent Knowledge Hub - Frontend Client Engine
- * Orchestrates Hybrid RAG queries, real-time observability telemetry,
- * and the active LLMOps Feedback & DPO Data Flywheel.
+ * Intelligent Knowledge Hub - Frontline CSR Conversational Client Engine
+ * Orchestrates multi-turn chat stream interactions, real-time telemetry,
+ * active diagnostic probes, and the active LLMOps Feedback & DPO Data Flywheel.
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-  // State Management
+  // Conversational State Management
   const state = {
-    currentQuery: "",
-    currentResponse: "",
-    currentCitations: [],
-    currentContext: [],
-    lastQueryData: null,
-    isSubmitting: false
+    conversationHistory: [],
+    isSubmitting: false,
+    sessionPromptCount: 0,
+    sessionLatencies: []
   };
 
-  // DOM Elements
-  const systemStatusBadge = document.getElementById("system-status-badge");
-  const systemStatusText = document.getElementById("system-status-text");
+  // DOM Elements - Chat & Form
+  const chatStream = document.getElementById("chat-stream");
   const ragForm = document.getElementById("rag-query-form");
   const queryInput = document.getElementById("query-input");
   const topKSelect = document.getElementById("top-k-select");
   const submitBtn = document.getElementById("submit-btn");
+  const clearChatBtn = document.getElementById("clear-chat-btn");
+  const sampleChips = document.querySelectorAll(".sample-chip");
 
-  const responseCard = document.getElementById("response-card");
-  const responseLoading = document.getElementById("response-loading");
-  const answerContainer = document.getElementById("answer-container");
-  const answerText = document.getElementById("answer-text");
-  const citationsList = document.getElementById("citations-list");
+  // DOM Elements - Probes & Status
+  const systemStatusBadge = document.getElementById("system-status-badge");
+  const systemStatusText = document.getElementById("system-status-text");
+  const credentialStatusText = document.getElementById("credential-status-text");
   const activeModelName = document.getElementById("active-model-name");
 
-  const btnLike = document.getElementById("btn-feedback-like");
-  const btnDislike = document.getElementById("btn-feedback-dislike");
-  const feedbackSuccessBanner = document.getElementById("feedback-success-banner");
-  const feedbackDrawer = document.getElementById("feedback-drawer");
-  const userCorrectionInput = document.getElementById("user-correction-input");
-  const submitCorrectionBtn = document.getElementById("submit-correction-btn");
-  const cancelCorrectionBtn = document.getElementById("cancel-correction-btn");
-
-  const contextPassagesList = document.getElementById("context-passages-list");
-  const retrievedCount = document.getElementById("retrieved-count");
-
-  // Metrics Elements
+  // DOM Elements - FinOps & Telemetry
   const metricRetrievalTime = document.getElementById("metric-retrieval-time");
   const metricLlmTime = document.getElementById("metric-llm-time");
   const metricTotalTime = document.getElementById("metric-total-time");
@@ -50,347 +37,560 @@ document.addEventListener("DOMContentLoaded", () => {
   const metricQueryCost = document.getElementById("metric-query-cost");
   const costProgressBar = document.getElementById("cost-progress-bar");
 
-  // Flywheel Elements
+  // DOM Elements - Flywheel
   const statGoldenCount = document.getElementById("stat-golden-count");
   const statDpoCount = document.getElementById("stat-dpo-count");
   const statTotalFeedback = document.getElementById("stat-total-feedback");
   const statSatisfactionRate = document.getElementById("stat-satisfaction-rate");
   const refreshStatsBtn = document.getElementById("refresh-stats-btn");
 
-  // Sample Query Chips
-  const sampleChips = document.querySelectorAll(".sample-chip");
+  // DOM Elements - Live KPIs
+  const kpiFcrVal = document.getElementById("kpi-fcr-val");
+  const kpiFcrBar = document.getElementById("kpi-fcr-bar");
+  const kpiSearchVal = document.getElementById("kpi-search-val");
+  const kpiSearchBar = document.getElementById("kpi-search-bar");
+  const kpiZtVal = document.getElementById("kpi-zt-val");
+  const kpiPromptsVal = document.getElementById("kpi-prompts-val");
 
-  // Initialize
+  // Initial Data Load
   checkSystemReadiness();
   fetchFeedbackStats();
+  fetchKpiMetrics();
+
+  // Periodically check live probe to ensure status communicates reality
+  setInterval(checkSystemReadiness, 60000);
 
   // -------------------------------------------------------------------------
-  // Event Handlers
+  // Event Listeners
   // -------------------------------------------------------------------------
 
-  // 1. Submit Query
+  // 1. Submit Prompt Form
   ragForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const question = queryInput.value.trim();
-    if (!question || state.isSubmitting) return;
+    const promptText = queryInput.value.trim();
+    if (!promptText || state.isSubmitting) return;
 
     const topK = parseInt(topKSelect.value, 10) || 3;
-    await executeQuery(question, topK);
+    await handleSendPrompt(promptText, topK);
   });
 
-  // 2. Sample Prompt Clicks
+  // 2. Allow Shift+Enter for newline, Enter to submit
+  queryInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      ragForm.dispatchEvent(new Event("submit"));
+    }
+  });
+
+  // 3. Conversational Suggestion Chips
   sampleChips.forEach((chip) => {
     chip.addEventListener("click", () => {
       const prompt = chip.getAttribute("data-prompt");
       if (prompt) {
         queryInput.value = prompt;
         queryInput.focus();
-        executeQuery(prompt, parseInt(topKSelect.value, 10) || 3);
+        handleSendPrompt(prompt, parseInt(topKSelect.value, 10) || 3);
       }
     });
   });
 
-  // 3. Positive Feedback (Like)
-  btnLike.addEventListener("click", async () => {
-    if (!state.currentResponse) return;
-    btnLike.classList.add("active");
-    btnDislike.classList.remove("active");
-    btnLike.disabled = true;
-    btnDislike.disabled = true;
-    feedbackDrawer.classList.add("hidden");
-
-    await sendFeedback({
-      rating: "like",
-      reason: null,
-      user_correction: null
+  // 4. Clear Chat (New Caller Session)
+  if (clearChatBtn) {
+    clearChatBtn.addEventListener("click", () => {
+      state.conversationHistory = [];
+      resetChatToWelcome();
+      queryInput.value = "";
+      queryInput.focus();
     });
-
-    feedbackSuccessBanner.classList.remove("hidden");
-  });
-
-  // 4. Negative Feedback (Dislike / Suggest Correction)
-  btnDislike.addEventListener("click", () => {
-    if (!state.currentResponse) return;
-    btnDislike.classList.add("active");
-    btnLike.classList.remove("active");
-    feedbackSuccessBanner.classList.add("hidden");
-    feedbackDrawer.classList.remove("hidden");
-    userCorrectionInput.focus();
-  });
-
-  // 5. Cancel Correction
-  cancelCorrectionBtn.addEventListener("click", () => {
-    feedbackDrawer.classList.add("hidden");
-    btnDislike.classList.remove("active");
-  });
-
-  // 6. Submit Human Correction to DPO Dataset
-  submitCorrectionBtn.addEventListener("click", async () => {
-    const selectedReason = document.querySelector('input[name="feedback-reason"]:checked');
-    const reasonText = selectedReason ? selectedReason.value : "Issue Reported";
-    const correctionText = userCorrectionInput.value.trim();
-
-    submitCorrectionBtn.disabled = true;
-    submitCorrectionBtn.textContent = "Submitting DPO Pair...";
-
-    await sendFeedback({
-      rating: "dislike",
-      reason: reasonText,
-      user_correction: correctionText || null
-    });
-
-    feedbackDrawer.classList.add("hidden");
-    btnLike.disabled = true;
-    btnDislike.disabled = true;
-    submitCorrectionBtn.disabled = false;
-    submitCorrectionBtn.textContent = "Submit to DPO Dataset";
-
-    // Show temporary confirmation
-    feedbackSuccessBanner.innerHTML = `
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-      </svg>
-      <div>
-        <strong>Correction Saved!</strong> Added to DPO / SFT tuning set (<code>data/dpo_tuning_set.jsonl</code>) for alignment retraining.
-      </div>
-    `;
-    feedbackSuccessBanner.classList.remove("hidden");
-  });
-
-  // 7. Refresh Stats
-  refreshStatsBtn.addEventListener("click", () => {
-    fetchFeedbackStats();
-  });
-
-  // -------------------------------------------------------------------------
-  // Core Functions
-  // -------------------------------------------------------------------------
-
-  /**
-   * Probes /health/ready to display real-time cluster readiness.
-   */
-  async function checkSystemReadiness() {
-    try {
-      const res = await fetch("/health/ready");
-      if (res.ok) {
-        const data = await res.json();
-        systemStatusBadge.className = "status-pill status-ready";
-        systemStatusText.textContent = `Live & Ready (${data.index_name || "kb-index"})`;
-        if (data.chat_deployment) {
-          activeModelName.textContent = data.chat_deployment;
-        }
-      } else {
-        // Fallback probe to /health/live
-        const liveRes = await fetch("/health/live");
-        if (liveRes.ok) {
-          systemStatusBadge.className = "status-pill status-ready";
-          systemStatusText.textContent = "Online (App Service Live)";
-        } else {
-          systemStatusBadge.className = "status-pill status-error";
-          systemStatusText.textContent = "Downstream Degraded";
-        }
-      }
-    } catch {
-      systemStatusBadge.className = "status-pill status-loading";
-      systemStatusText.textContent = "Connecting to Azure...";
-    }
   }
 
+  // 5. Refresh Flywheel Stats Button
+  if (refreshStatsBtn) {
+    refreshStatsBtn.addEventListener("click", () => {
+      fetchFeedbackStats();
+      fetchKpiMetrics();
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // Conversational Core Handlers
+  // -------------------------------------------------------------------------
+
   /**
-   * Executes RAG Query against /query endpoint.
+   * Orchestrates multi-turn prompt sending and UI stream rendering.
    */
-  async function executeQuery(question, topK) {
+  async function handleSendPrompt(promptText, topK) {
     state.isSubmitting = true;
     submitBtn.disabled = true;
     submitBtn.querySelector(".btn-text").textContent = "Synthesizing...";
 
-    // Reset UI states
-    responseCard.classList.remove("hidden");
-    responseLoading.classList.remove("hidden");
-    answerContainer.classList.add("hidden");
-    feedbackSuccessBanner.classList.add("hidden");
-    feedbackDrawer.classList.add("hidden");
-    btnLike.classList.remove("active");
-    btnDislike.classList.remove("active");
-    btnLike.disabled = false;
-    btnDislike.disabled = false;
-    userCorrectionInput.value = "";
+    // 1. Append User Bubble to Chat Stream
+    appendUserMessage(promptText);
+
+    // 2. Clear Input and Auto-scroll
+    queryInput.value = "";
+    scrollToBottom();
+
+    // 3. Append Typing Indicator
+    const typingIndicator = appendTypingIndicator();
+    scrollToBottom();
 
     const startTime = performance.now();
 
     try {
-      const response = await fetch("/query", {
+      const response = await fetch("/prompt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question, top_k: topK })
+        body: JSON.stringify({
+          prompt: promptText,
+          top_k: topK,
+          history: state.conversationHistory
+        })
       });
 
       if (!response.ok) {
-        const errData = await response.json().catch(() => ({ detail: "Query failed." }));
+        const errData = await response.json().catch(() => ({ detail: "Prompt failed." }));
         throw new Error(errData.detail || `HTTP ${response.status}`);
       }
 
       const data = await response.json();
-      state.lastQueryData = data;
-      state.currentQuery = question;
-      state.currentResponse = data.answer;
-      state.currentCitations = data.citations || [];
-      state.currentContext = data.context || [];
 
-      // Render Answer
-      renderAnswer(data.answer);
+      // Remove typing indicator
+      typingIndicator.remove();
 
-      // Render Citations
-      renderCitations(data.citations || []);
+      // Append Assistant Response Bubble
+      appendAssistantMessage(promptText, data);
 
-      // Render Context Passages
-      renderContextPassages(data.context || []);
+      // Record in conversation history for multi-turn context
+      state.conversationHistory.push({ role: "user", content: promptText });
+      state.conversationHistory.push({ role: "assistant", content: data.answer });
 
-      // Update FinOps & Telemetry Metrics
-      updateMetrics(data.metrics);
+      // Update session metrics
+      state.sessionPromptCount += 1;
+      state.sessionLatencies.push(data.metrics.total_latency_ms);
 
-      responseLoading.classList.add("hidden");
-      answerContainer.classList.remove("hidden");
+      // Update Sidebar Telemetry & Live KPIs
+      updateTelemetrySidebar(data.metrics);
+      fetchKpiMetrics();
+
+      scrollToBottom();
     } catch (err) {
-      console.error("Query Error:", err);
-      responseLoading.classList.add("hidden");
-      answerContainer.classList.remove("hidden");
-      answerText.innerHTML = `
-        <div style="color: #f87171; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); padding: 1rem; border-radius: 8px;">
-          <strong>Error executing knowledge retrieval:</strong> ${escapeHtml(err.message)}
-          <br><small style="color: #94a3b8; margin-top: 4px; display: inline-block;">Please verify Azure AI Search and Azure OpenAI endpoints or Entra ID credentials.</small>
-        </div>
-      `;
-      citationsList.innerHTML = `<span style="color: #64748b; font-size: 0.75rem;">No citations available.</span>`;
-      contextPassagesList.innerHTML = "";
-      retrievedCount.textContent = "0";
+      console.error("Prompt Error:", err);
+      typingIndicator.remove();
+
+      appendErrorMessage(err.message || "Failed to retrieve knowledge response.");
+      scrollToBottom();
 
       const elapsed = Math.round(performance.now() - startTime);
       metricTotalTime.textContent = `${elapsed} ms`;
     } finally {
       state.isSubmitting = false;
       submitBtn.disabled = false;
-      submitBtn.querySelector(".btn-text").textContent = "Execute Query";
+      submitBtn.querySelector(".btn-text").textContent = "Execute Prompt";
     }
   }
 
   /**
-   * Formats and renders markdown answer.
+   * Appends user message bubble to chat stream.
    */
-  function renderAnswer(rawAnswer) {
-    if (!rawAnswer) {
-      answerText.innerHTML = "<p>No answer text returned.</p>";
-      return;
+  function appendUserMessage(text) {
+    const row = document.createElement("div");
+    row.className = "message-row user-row";
+
+    const nowStr = formatTime(new Date());
+
+    row.innerHTML = `
+      <div class="message-bubble user-bubble">
+        <div class="bubble-header">
+          <span>You</span> &bull; <span>${nowStr}</span>
+        </div>
+        <div class="bubble-body">${escapeHtml(text)}</div>
+      </div>
+    `;
+
+    chatStream.appendChild(row);
+  }
+
+  /**
+   * Appends animated typing indicator to chat stream.
+   */
+  function appendTypingIndicator() {
+    const row = document.createElement("div");
+    row.className = "message-row assistant-row typing-row";
+
+    row.innerHTML = `
+      <div class="message-avatar">⚡</div>
+      <div class="typing-bubble">
+        <div class="typing-dots">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+        <span>Searching knowledge base & synthesizing prompt response...</span>
+      </div>
+    `;
+
+    chatStream.appendChild(row);
+    return row;
+  }
+
+  /**
+   * Appends assistant message bubble with collapsible citations, context drawer, and feedback flywheel.
+   */
+  function appendAssistantMessage(promptText, data) {
+    const row = document.createElement("div");
+    row.className = "message-row assistant-row";
+
+    const nowStr = formatTime(new Date());
+    const citations = data.citations || [];
+    const context = data.context || [];
+    const metrics = data.metrics || {};
+
+    const formattedAnswer = renderMarkdown(data.answer);
+
+    // Citations Accordion
+    let citationsHtml = "";
+    if (citations.length > 0) {
+      const badges = citations
+        .map(
+          (c) => `
+            <span class="citation-badge" title="Chunk: ${escapeHtml(c.chunk_id)}">
+              📄 ${escapeHtml(c.title)}
+              <span class="citation-chunk-id">[${escapeHtml(c.chunk_id)}]</span>
+            </span>`
+        )
+        .join("");
+
+      citationsHtml = `
+        <details class="message-citations">
+          <summary>
+            <span>📎 Verified SOP Documents (${citations.length})</span>
+          </summary>
+          <div class="message-citations-list">${badges}</div>
+        </details>
+      `;
     }
 
-    // Lightweight markdown parser for headers, bold, bullets, code, and linebreaks
-    let formatted = escapeHtml(rawAnswer);
+    // Context Inspector Accordion
+    let contextHtml = "";
+    if (context.length > 0) {
+      const cards = context
+        .map(
+          (doc, i) => `
+            <div class="passage-card">
+              <div class="passage-meta">
+                <span>#${i + 1} &bull; ${escapeHtml(doc.title)}</span>
+                <span>${doc.score ? "Score: " + parseFloat(doc.score).toFixed(4) : "RRF Match"}</span>
+              </div>
+              <div class="passage-content">${escapeHtml(doc.content)}</div>
+            </div>`
+        )
+        .join("");
 
-    // Code blocks ```code```
-    formatted = formatted.replace(/```([\s\S]*?)```/g, (match, p1) => {
-      return `<pre><code>${p1.trim()}</code></pre>`;
+      contextHtml = `
+        <details class="message-context">
+          <summary>
+            <span>🔍 View Retrieved Context Passages (${context.length})</span>
+          </summary>
+          <div class="message-context-list">${cards}</div>
+        </details>
+      `;
+    }
+
+    // Micro telemetry summary
+    const microLatency = metrics.total_latency_ms ? `${metrics.total_latency_ms} ms` : "--";
+    const microTokens = metrics.total_tokens ? `${metrics.total_tokens} tokens` : "--";
+    const microCost = metrics.formatted_cost || "$0.000000";
+
+    row.innerHTML = `
+      <div class="message-avatar">⚡</div>
+      <div class="message-bubble assistant-bubble">
+        <div class="bubble-header">
+          <span class="bubble-author">Knowledge Assistant</span>
+          <span class="bubble-time">${nowStr}</span>
+        </div>
+        <div class="bubble-body">${formattedAnswer}</div>
+
+        ${citationsHtml}
+        ${contextHtml}
+
+        <div class="message-footer-bar">
+          <div class="message-micro-metrics">
+            <span>⚡ ${microLatency}</span>
+            <span>&bull;</span>
+            <span>${microTokens}</span>
+            <span>&bull;</span>
+            <span>${microCost}</span>
+          </div>
+
+          <div class="message-feedback-actions">
+            <button type="button" class="btn-thumb-small btn-msg-like" title="Mark as accurate (adds to Golden Benchmark Suite)">
+              <span>👍</span> <span>Accurate</span>
+            </button>
+            <button type="button" class="btn-thumb-small btn-msg-dislike" title="Suggest correction (adds to DPO Alignment Set)">
+              <span>👎</span> <span>Suggest Correction</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="message-dpo-drawer hidden">
+          <div class="drawer-header">
+            <h4>Human-in-the-Loop Correction (DPO/SFT Dataset)</h4>
+            <p>Tell us what was off so our active learning flywheel can improve future prompt responses:</p>
+          </div>
+          <div class="feedback-reasons-grid">
+            <label class="reason-chip">
+              <input type="radio" name="fb-reason-${nowStr}" value="Inaccurate Fact" checked>
+              <span>Inaccurate Fact</span>
+            </label>
+            <label class="reason-chip">
+              <input type="radio" name="fb-reason-${nowStr}" value="Missing Critical Context">
+              <span>Missing Critical Context</span>
+            </label>
+            <label class="reason-chip">
+              <input type="radio" name="fb-reason-${nowStr}" value="Wrong Document Cited">
+              <span>Wrong Document Cited</span>
+            </label>
+            <label class="reason-chip">
+              <input type="radio" name="fb-reason-${nowStr}" value="Confusing Tone / Other">
+              <span>Confusing Tone / Other</span>
+            </label>
+          </div>
+          <div class="correction-field">
+            <label>Human Ground Truth / What should have been said:</label>
+            <textarea class="msg-correction-input" rows="2" placeholder="Write the preferred exact plain-language answer..."></textarea>
+          </div>
+          <div class="drawer-actions">
+            <button type="button" class="btn-secondary btn-cancel-dpo">Cancel</button>
+            <button type="button" class="btn-accent btn-submit-dpo">Submit to DPO Dataset</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Attach interactive feedback event listeners for this specific message bubble
+    wireMessageFeedbackEvents(row, promptText, data);
+
+    chatStream.appendChild(row);
+  }
+
+  /**
+   * Attaches feedback flywheel listeners to a specific message bubble.
+   */
+  function wireMessageFeedbackEvents(row, promptText, data) {
+    const btnLike = row.querySelector(".btn-msg-like");
+    const btnDislike = row.querySelector(".btn-msg-dislike");
+    const dpoDrawer = row.querySelector(".message-dpo-drawer");
+    const btnCancel = row.querySelector(".btn-cancel-dpo");
+    const btnSubmitDpo = row.querySelector(".btn-submit-dpo");
+    const correctionInput = row.querySelector(".msg-correction-input");
+    const footerBar = row.querySelector(".message-footer-bar");
+
+    // Positive Feedback (Accurate)
+    btnLike.addEventListener("click", async () => {
+      btnLike.classList.add("active-like");
+      btnDislike.classList.remove("active-dislike");
+      btnLike.disabled = true;
+      btnDislike.disabled = true;
+      dpoDrawer.classList.add("hidden");
+
+      await sendFeedbackRecord({
+        prompt: promptText,
+        response: data.answer,
+        citations: data.citations || [],
+        retrieved_context: data.context || [],
+        rating: "like",
+        reason: null,
+        user_correction: null
+      });
+
+      const notice = document.createElement("div");
+      notice.className = "feedback-saved-notice";
+      notice.innerHTML = `<span>✓</span> <span>Recorded to Golden Evaluation benchmark suite (<code>golden_eval_set.jsonl</code>)</span>`;
+      footerBar.after(notice);
+
+      fetchFeedbackStats();
+      fetchKpiMetrics();
     });
 
-    // Inline `code`
-    formatted = formatted.replace(/`([^`]+)`/g, "<code>$1</code>");
+    // Negative Feedback (Suggest Correction)
+    btnDislike.addEventListener("click", () => {
+      btnDislike.classList.add("active-dislike");
+      btnLike.classList.remove("active-like");
+      dpoDrawer.classList.remove("hidden");
+      correctionInput.focus();
+      scrollToBottom();
+    });
 
-    // Bold **text**
-    formatted = formatted.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    // Cancel DPO Drawer
+    btnCancel.addEventListener("click", () => {
+      dpoDrawer.classList.add("hidden");
+      btnDislike.classList.remove("active-dislike");
+    });
 
-    // Italic *text*
-    formatted = formatted.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+    // Submit DPO Correction
+    btnSubmitDpo.addEventListener("click", async () => {
+      const selectedReasonEl = row.querySelector('input[type="radio"]:checked');
+      const reasonVal = selectedReasonEl ? selectedReasonEl.value : "Issue Reported";
+      const correctionVal = correctionInput.value.trim();
 
-    // Unordered lists
-    const lines = formatted.split("\n");
-    let inList = false;
-    const processedLines = [];
+      btnSubmitDpo.disabled = true;
+      btnSubmitDpo.textContent = "Submitting...";
 
-    for (let line of lines) {
-      const trimmed = line.trim();
-      if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
-        if (!inList) {
-          processedLines.push("<ul>");
-          inList = true;
+      await sendFeedbackRecord({
+        prompt: promptText,
+        response: data.answer,
+        citations: data.citations || [],
+        retrieved_context: data.context || [],
+        rating: "dislike",
+        reason: reasonVal,
+        user_correction: correctionVal || null
+      });
+
+      dpoDrawer.classList.add("hidden");
+      btnLike.disabled = true;
+      btnDislike.disabled = true;
+
+      const notice = document.createElement("div");
+      notice.className = "feedback-saved-notice";
+      notice.innerHTML = `<span>✓</span> <span>Correction saved to DPO alignment dataset (<code>dpo_tuning_set.jsonl</code>)</span>`;
+      footerBar.after(notice);
+
+      fetchFeedbackStats();
+      fetchKpiMetrics();
+    });
+  }
+
+  /**
+   * Appends error message bubble to chat stream.
+   */
+  function appendErrorMessage(msg) {
+    const row = document.createElement("div");
+    row.className = "message-row assistant-row";
+
+    row.innerHTML = `
+      <div class="message-avatar" style="background: linear-gradient(135deg, #ef4444, #b91c1c);">⚠️</div>
+      <div class="message-bubble assistant-bubble" style="border-color: #fecaca; background: #fff5f5;">
+        <div class="bubble-header">
+          <span class="bubble-author" style="color: #dc2626;">System Notice</span>
+          <span class="bubble-time">Live</span>
+        </div>
+        <div class="bubble-body" style="color: #b91c1c;">
+          <p><strong>I had trouble retrieving information for that prompt:</strong></p>
+          <p style="margin-top: 0.25rem;">${escapeHtml(msg)}</p>
+          <p style="margin-top: 0.5rem; font-size: 0.8125rem; color: #7f1d1d;">Please check downstream connection to Azure AI Search or Azure OpenAI, or ask a supervisor for the standard operating procedure.</p>
+        </div>
+      </div>
+    `;
+
+    chatStream.appendChild(row);
+  }
+
+  /**
+   * Resets chat stream to initial welcome message.
+   */
+  function resetChatToWelcome() {
+    chatStream.innerHTML = `
+      <div class="message-row assistant-row welcome-message">
+        <div class="message-avatar">⚡</div>
+        <div class="message-bubble assistant-bubble">
+          <div class="bubble-header">
+            <span class="bubble-author">Knowledge Assistant</span>
+            <span class="bubble-time">New Session</span>
+          </div>
+          <div class="bubble-body">
+            <p>Hello! 👋 I'm your frontline Knowledge Assistant. I'm here to help you quickly find the exact policy rules, caller verification steps, and verbatim scripts you need while on a call with a member.</p>
+            <p style="margin-top: 0.5rem; color: var(--text-secondary);">Ask a question below in plain English, or tap one of the common caller prompts to get started:</p>
+          </div>
+        </div>
+      </div>
+    `;
+    scrollToBottom();
+  }
+
+  /**
+   * Smoothly scrolls chat stream container to the latest message.
+   */
+  function scrollToBottom() {
+    requestAnimationFrame(() => {
+      chatStream.scrollTop = chatStream.scrollHeight;
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // Probes, Telemetry & KPI Functions
+  // -------------------------------------------------------------------------
+
+  /**
+   * Deep readiness probe against /health/ready communicating live status.
+   */
+  async function checkSystemReadiness() {
+    try {
+      const res = await fetch("/health/ready");
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        systemStatusBadge.className = "status-pill status-ready";
+        systemStatusText.textContent = `Live & Ready (${data.index_name || "kb-index"})`;
+        systemStatusBadge.title = `Azure AI Search (${data.index_name}) and Azure OpenAI (${data.chat_deployment}) are operational.`;
+        if (data.chat_deployment) {
+          activeModelName.textContent = data.chat_deployment;
         }
-        processedLines.push(`<li>${trimmed.substring(2)}</li>`);
-      } else if (/^\d+\.\s/.test(trimmed)) {
-        if (!inList) {
-          processedLines.push("<ol>");
-          inList = true;
+        if (data.auth_mode && credentialStatusText) {
+          credentialStatusText.textContent = data.auth_mode;
         }
-        const itemContent = trimmed.replace(/^\d+\.\s/, "");
-        processedLines.push(`<li>${itemContent}</li>`);
       } else {
-        if (inList) {
-          processedLines.push("</ul>");
-          inList = false;
-        }
-        if (trimmed.length > 0) {
-          processedLines.push(`<p>${trimmed}</p>`);
+        // Downstream unhealthy: Check if App Service process itself is live
+        const liveRes = await fetch("/health/live");
+        if (liveRes.ok) {
+          systemStatusBadge.className = "status-pill status-error";
+          systemStatusText.textContent = "Downstream Degraded";
+          systemStatusBadge.title = "App Service process is running, but downstream Azure Search or OpenAI is unavailable or unauthenticated in current environment.";
+          if (data.auth_mode && credentialStatusText) {
+            credentialStatusText.textContent = data.auth_mode;
+          }
+        } else {
+          systemStatusBadge.className = "status-pill status-error";
+          systemStatusText.textContent = "Server Offline";
+          systemStatusBadge.title = "App Service backend is unreachable.";
         }
       }
+    } catch {
+      systemStatusBadge.className = "status-pill status-loading";
+      systemStatusText.textContent = "Connecting...";
+      systemStatusBadge.title = "Attempting to reach backend probes.";
     }
-    if (inList) processedLines.push("</ul>");
-
-    answerText.innerHTML = processedLines.join("\n");
   }
 
   /**
-   * Renders citation badges.
+   * Fetches latest live operational KPIs from /metrics/kpis.
    */
-  function renderCitations(citations) {
-    citationsList.innerHTML = "";
-    if (!citations || citations.length === 0) {
-      citationsList.innerHTML = `<span style="color: #64748b; font-size: 0.75rem;">No direct citations returned.</span>`;
-      return;
-    }
+  async function fetchKpiMetrics() {
+    try {
+      const res = await fetch("/metrics/kpis");
+      if (res.ok) {
+        const data = await res.json();
+        if (kpiFcrVal) kpiFcrVal.textContent = `${data.first_contact_resolution_pct}% (Target: 85%)`;
+        if (kpiFcrBar) kpiFcrBar.style.width = `${Math.min(100, data.first_contact_resolution_pct)}%`;
 
-    citations.forEach((cit) => {
-      const badge = document.createElement("div");
-      badge.className = "citation-badge";
-      badge.innerHTML = `
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-        </svg>
-        <span>${escapeHtml(cit.title)}</span>
-        <span class="citation-chunk-id">[${escapeHtml(cit.chunk_id)}]</span>
-      `;
-      citationsList.appendChild(badge);
-    });
+        if (kpiSearchVal) kpiSearchVal.textContent = `-${data.search_time_reduction_pct}% (Avg ${data.avg_latency_ms}ms)`;
+        if (kpiSearchBar) kpiSearchBar.style.width = `${Math.min(100, data.search_time_reduction_pct)}%`;
+
+        if (kpiZtVal) kpiZtVal.textContent = `${data.zero_trust_violations} (100% Secure)`;
+        if (kpiPromptsVal) kpiPromptsVal.textContent = `${data.total_prompts_session} Prompts Executed`;
+
+        if (data.auth_mode && credentialStatusText) {
+          credentialStatusText.textContent = data.auth_mode;
+        }
+      }
+    } catch (err) {
+      console.warn("Could not load KPI metrics:", err);
+    }
   }
 
   /**
-   * Renders collapsible context passages with search scores.
+   * Updates real-time FinOps & Telemetry sidebar cards.
    */
-  function renderContextPassages(context) {
-    contextPassagesList.innerHTML = "";
-    retrievedCount.textContent = context.length;
-
-    if (!context || context.length === 0) {
-      contextPassagesList.innerHTML = `<div style="color: #64748b; font-size: 0.75rem;">No context passages.</div>`;
-      return;
-    }
-
-    context.forEach((doc, idx) => {
-      const card = document.createElement("div");
-      card.className = "passage-card";
-      const scoreDisplay = doc.score !== null ? `Score: ${parseFloat(doc.score).toFixed(4)}` : "RRF Rank";
-      card.innerHTML = `
-        <div class="passage-meta">
-          <span>#${idx + 1} &bull; ${escapeHtml(doc.title)}</span>
-          <span>${scoreDisplay} &bull; ID: ${escapeHtml(doc.id)}</span>
-        </div>
-        <div class="passage-content">${escapeHtml(doc.content)}</div>
-      `;
-      contextPassagesList.appendChild(card);
-    });
-  }
-
-  /**
-   * Updates FinOps and Telemetry cards.
-   */
-  function updateMetrics(metrics) {
+  function updateTelemetrySidebar(metrics) {
     if (!metrics) return;
 
     metricRetrievalTime.textContent = `${metrics.retrieval_latency_ms} ms`;
@@ -402,7 +602,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     metricQueryCost.textContent = metrics.formatted_cost || `$${metrics.estimated_cost_usd.toFixed(6)}`;
 
-    // Scale cost bar relative to $0.001 benchmark
     const pct = Math.min(100, Math.max(8, (metrics.estimated_cost_usd / 0.0005) * 100));
     costProgressBar.style.width = `${pct}%`;
   }
@@ -410,34 +609,20 @@ document.addEventListener("DOMContentLoaded", () => {
   /**
    * Dispatches user feedback to /feedback endpoint.
    */
-  async function sendFeedback(payload) {
+  async function sendFeedbackRecord(payload) {
     try {
-      const body = {
-        query: state.currentQuery,
-        response: state.currentResponse,
-        citations: state.currentCitations,
-        retrieved_context: state.currentContext,
-        rating: payload.rating,
-        reason: payload.reason,
-        user_correction: payload.user_correction
-      };
-
-      const res = await fetch("/feedback", {
+      await fetch("/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
+        body: JSON.stringify(payload)
       });
-
-      if (res.ok) {
-        await fetchFeedbackStats();
-      }
     } catch (err) {
       console.error("Failed to submit feedback:", err);
     }
   }
 
   /**
-   * Fetches latest LLMOps data flywheel counters.
+   * Fetches latest LLMOps data flywheel counters from /feedback/stats.
    */
   async function fetchFeedbackStats() {
     try {
@@ -454,10 +639,126 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function escapeHtml(text) {
-    if (!text) return "";
+  // -------------------------------------------------------------------------
+  // Helper Utilities
+  // -------------------------------------------------------------------------
+
+  /**
+   * Formats a raw date to HH:MM AM/PM.
+   */
+  function formatTime(date) {
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const minutesStr = minutes < 10 ? "0" + minutes : minutes;
+    return `${hours}:${minutesStr} ${ampm}`;
+  }
+
+  /**
+   * Lightweight markdown parser for bold, bullets, numbered lists, blockquotes, code.
+   */
+  function renderMarkdown(raw) {
+    if (!raw) return "<p>No answer text returned.</p>";
+
+    let text = escapeHtml(raw);
+
+    // Code blocks
+    text = text.replace(/```([\s\S]*?)```/g, (match, p1) => {
+      return `<pre><code>${p1.trim()}</code></pre>`;
+    });
+
+    // Inline code
+    text = text.replace(/`([^`]+)`/g, "<code>$1</code>");
+
+    // Bold **text**
+    text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+
+    // Italic *text* or _text_
+    text = text.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+    text = text.replace(/_([^_]+)_/g, "<em>$1</em>");
+
+    // Markdown Links [text](url)
+    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
+    // Line-by-line parsing for headings, lists, horizontal rules, and blockquotes
+    const lines = text.split("\n");
+    let inUl = false;
+    let inOl = false;
+    const processed = [];
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+
+      if (!trimmed) {
+        if (inUl) { processed.push("</ul>"); inUl = false; }
+        if (inOl) { processed.push("</ol>"); inOl = false; }
+        continue;
+      }
+
+      // Horizontal rules (---, ***, ___)
+      if (/^(\-{3,}|\*{3,}|_{3,})$/.test(trimmed)) {
+        if (inUl) { processed.push("</ul>"); inUl = false; }
+        if (inOl) { processed.push("</ol>"); inOl = false; }
+        processed.push("<hr class='chat-divider'>");
+        continue;
+      }
+
+      // Headings: # through ###### (strip hashes and render as bold styled headings)
+      const headingMatch = trimmed.match(/^(#{1,6})\s+(.*)$/);
+      if (headingMatch) {
+        if (inUl) { processed.push("</ul>"); inUl = false; }
+        if (inOl) { processed.push("</ol>"); inOl = false; }
+        const level = headingMatch[1].length;
+        const headingText = headingMatch[2].trim();
+        const tag = level <= 2 ? "h3" : "h4";
+        processed.push(`<${tag} class="chat-heading">${headingText}</${tag}>`);
+        continue;
+      }
+
+      // Blockquotes
+      if (trimmed.startsWith("&gt; ") || trimmed.startsWith("> ")) {
+        if (inUl) { processed.push("</ul>"); inUl = false; }
+        if (inOl) { processed.push("</ol>"); inOl = false; }
+        const quoteContent = trimmed.replace(/^(&gt;|>)\s?/, "");
+        processed.push(`<blockquote>${quoteContent}</blockquote>`);
+        continue;
+      }
+
+      // Unordered lists (- or *)
+      if (/^[-*]\s+/.test(trimmed)) {
+        if (inOl) { processed.push("</ol>"); inOl = false; }
+        if (!inUl) { processed.push("<ul>"); inUl = true; }
+        processed.push(`<li>${trimmed.replace(/^[-*]\s+/, "")}</li>`);
+        continue;
+      }
+
+      // Ordered lists (1. or 1))
+      if (/^\d+[\.\)]\s+/.test(trimmed)) {
+        if (inUl) { processed.push("</ul>"); inUl = false; }
+        if (!inOl) { processed.push("<ol>"); inOl = true; }
+        const itemContent = trimmed.replace(/^\d+[\.\)]\s+/, "");
+        processed.push(`<li>${itemContent}</li>`);
+        continue;
+      }
+
+      // Regular paragraph
+      if (inUl) { processed.push("</ul>"); inUl = false; }
+      if (inOl) { processed.push("</ol>"); inOl = false; }
+      processed.push(`<p>${trimmed}</p>`);
+    }
+
+    if (inUl) processed.push("</ul>");
+    if (inOl) processed.push("</ol>");
+
+    return processed.join("\n");
+  }
+
+  function escapeHtml(str) {
+    if (!str) return "";
     const div = document.createElement("div");
-    div.textContent = text;
+    div.textContent = str;
     return div.innerHTML;
   }
 });

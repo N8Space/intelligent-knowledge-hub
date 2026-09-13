@@ -27,21 +27,21 @@
             <span>Intelligent Knowledge Hub</span>
             <span class="badge-tag">RAG v1.0</span>
           </div>
-          <p class="brand-subtitle">Enterprise Zero-Trust RAG & AI Enablement Platform</p>
+          <p class="brand-subtitle">Enterprise Zero-Trust RAG & Frontline AI Enablement</p>
         </div>
       </div>
 
       <div class="nav-meta">
-        <div id="system-status-badge" class="status-pill status-loading">
+        <div id="system-status-badge" class="status-pill status-loading" title="Live Cluster Readiness Probe (/health/ready)">
           <span class="status-dot"></span>
           <span id="system-status-text">Probing System Readiness...</span>
         </div>
-        <div class="credential-pill" title="Authenticated via DefaultAzureCredential with scoped token provider">
+        <div id="credential-status-pill" class="credential-pill" title="Live Authentication Identity">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
-          <span>Entra ID Passwordless</span>
+          <span id="credential-status-text">Entra ID Passwordless</span>
         </div>
         <a href="https://github.com/N8Space/intelligent-knowledge-hub" target="_blank" rel="noopener noreferrer" class="nav-btn-icon" title="View Source on GitHub">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -55,201 +55,104 @@
     <main class="app-main">
       <div class="content-grid">
         
-        <!-- Left Section: Query & Answer Area -->
+        <!-- Left Section: Multi-Turn Conversational Chat Stream & Prompt Workbench -->
         <section class="rag-workbench">
-          <!-- Search & Prompt Bar -->
-          <div class="card search-card">
-            <div class="card-header">
+          <div class="card chat-card">
+            
+            <!-- Chat Card Header -->
+            <div class="card-header chat-header">
               <div class="card-title-group">
-                <span class="card-step-badge">1</span>
-                <h2>Enterprise Knowledge Retrieval</h2>
+                <div class="chat-avatar-header">⚡</div>
+                <div>
+                  <h2>CSR Knowledge Assistant</h2>
+                  <p class="chat-header-subtitle">Real-time SOP Guidance, Member Service Scripts & Caller Verification</p>
+                </div>
               </div>
-              <div class="search-mode-indicator">
-                <span class="dot-indicator"></span> Hybrid Search (BM25 + RRF Vector)
+              <div class="chat-header-actions">
+                <div class="model-badge">
+                  <span class="sparkle">✨</span> Model: <strong id="active-model-name">gpt-5.4-mini</strong>
+                </div>
+                <button type="button" id="clear-chat-btn" class="btn-clear-chat" title="Clear conversation for new caller">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                  </svg>
+                  <span>New Caller</span>
+                </button>
               </div>
             </div>
 
-            <form id="rag-query-form" class="query-form">
+            <!-- Chat Stream Message History -->
+            <div id="chat-stream" class="chat-stream" aria-live="polite">
+              <!-- Welcome Assistant Message Bubble -->
+              <div class="message-row assistant-row welcome-message">
+                <div class="message-avatar">⚡</div>
+                <div class="message-bubble assistant-bubble">
+                  <div class="bubble-header">
+                    <span class="bubble-author">Knowledge Assistant</span>
+                    <span class="bubble-time">Live Session</span>
+                  </div>
+                  <div class="bubble-body">
+                    <p>Hello! 👋 I'm your frontline Knowledge Assistant. I'm here to help you quickly find the exact policy rules, caller verification steps, and verbatim scripts you need while on a call with a member.</p>
+                    <p style="margin-top: 0.5rem; color: var(--text-secondary);">Ask a question below in plain English, or tap one of the common caller prompts to get started:</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Conversational Prompt Suggestion Chips -->
+            <div class="sample-prompts-container">
+              <span class="sample-title">Common Frontline Prompts:</span>
+              <div class="sample-chips">
+                <button type="button" class="sample-chip" data-prompt="How do I verify a caller's identity before giving out any account details?">
+                  🔐 Verify Caller Identity
+                </button>
+                <button type="button" class="sample-chip" data-prompt="What is the exact script and rules for setting up auto-pay with a caller over the phone?">
+                  💳 Set Up Auto-Pay
+                </button>
+                <button type="button" class="sample-chip" data-prompt="When am I required to do a warm transfer or escalate a call to a supervisor?">
+                  🚨 Transfer to Supervisor
+                </button>
+                <button type="button" class="sample-chip" data-prompt="A caller got a surprise medical bill from an out-of-network doctor. How do I help them dispute it?">
+                  ⚖️ Surprise Out-of-Network Bill
+                </button>
+                <button type="button" class="sample-chip" data-prompt="What should I say and do if a caller fails verification two times in a row?">
+                  🚫 Failed Verification
+                </button>
+              </div>
+            </div>
+
+            <!-- Prompt Input Composer -->
+            <form id="rag-query-form" class="query-form prompt-composer-form">
               <div class="search-input-wrapper">
                 <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
                 <textarea 
                   id="query-input" 
                   rows="2" 
-                  placeholder="How can I help? You can ask for guidance like identity verification, auto-pay setup, escalations, balance billing, how to enter a policy code. You can also select a common prompt below..."
+                  placeholder="Ask a question in plain words... (e.g. How do I verify a caller's identity? How do I set up auto-pay?)"
                   required
                 ></textarea>
                 <div class="input-actions">
                   <div class="top-k-selector">
-                    <label for="top-k-select">Top Context:</label>
+                    <label for="top-k-select">Response Level:</label>
                     <select id="top-k-select">
-                      <option value="2">2 Chunks</option>
-                      <option value="3" selected>3 Chunks</option>
-                      <option value="5">5 Chunks</option>
-                      <option value="8">8 Chunks</option>
+                      <option value="1">Low</option>
+                      <option value="3" selected>Medium</option>
+                      <option value="5">High</option>
                     </select>
                   </div>
                   <button type="submit" id="submit-btn" class="btn-primary">
-                    <span class="btn-text">Execute Query</span>
+                    <span class="btn-text">Execute Prompt</span>
                     <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                      <polyline points="12 5 19 12 12 19"></polyline>
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                     </svg>
                   </button>
                 </div>
               </div>
             </form>
-
-            <!-- Sample Prompts -->
-            <div class="sample-prompts-container">
-              <span class="sample-title">Try Common Queries:</span>
-              <div class="sample-chips">
-                <button type="button" class="sample-chip" data-prompt="What are the mandatory 3-point demographic verification requirements and caller authority limits for adult dependents under SOP-101?">
-                  🔐 Caller Auth & Verification
-                </button>
-                <button type="button" class="sample-chip" data-prompt="What is the exact verbatim script for setting up recurring EFT over the phone, and what are the system cut-off windows under SOP-102?">
-                  💳 Auto-Pay & EFT Mandate
-                </button>
-                <button type="button" class="sample-chip" data-prompt="What are the immediate zero-tolerance warm transfer triggers and tiered routing escalation steps under SOP-104?">
-                  🚨 Escalation & Warm Transfers
-                </button>
-                <button type="button" class="sample-chip" data-prompt="How does the No Surprises Act protect members from out-of-network emergency balance bills and what is the CSR dispute workflow under SOP-108?">
-                  ⚖️ Surprise Billing & NSA Rules
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Answer & Grounding Card -->
-          <div id="response-card" class="card response-card hidden">
-            <div class="card-header">
-              <div class="card-title-group">
-                <span class="card-step-badge">2</span>
-                <h2>Grounded Synthesis Response</h2>
-              </div>
-              <div class="model-badge">
-                <span class="sparkle">✨</span> Model: <strong id="active-model-name">gpt-5.4-mini</strong>
-              </div>
-            </div>
-
-            <!-- Loading Skeleton -->
-            <div id="response-loading" class="response-loading hidden">
-              <div class="skeleton-line full"></div>
-              <div class="skeleton-line medium"></div>
-              <div class="skeleton-line long"></div>
-              <div class="skeleton-line short"></div>
-              <div class="loading-telemetry-hint">
-                <span class="spinner"></span> Vectorizing query with <code>text-embedding-3-small</code> & synthesizing grounded response...
-              </div>
-            </div>
-
-            <!-- Answer Content -->
-            <div id="answer-container" class="answer-container">
-              <div id="answer-text" class="answer-markdown"></div>
-
-              <!-- Citations Header Row -->
-              <div class="citations-section">
-                <div class="citations-header">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                  </svg>
-                  <span>Verified Source Documents Cited:</span>
-                </div>
-                <div id="citations-list" class="citations-tags"></div>
-              </div>
-
-              <!-- Interactive Feedback Flywheel Panel -->
-              <div class="feedback-flywheel-container">
-                <div class="feedback-prompt-row">
-                  <div class="feedback-question">
-                    <span>Was this grounded answer accurate and helpful?</span>
-                  </div>
-                  <div class="feedback-actions">
-                    <button id="btn-feedback-like" class="btn-thumb btn-like" title="Mark as accurate (adds to Golden Evaluation Set)">
-                      <span class="thumb-icon">👍</span>
-                      <span>Accurate</span>
-                    </button>
-                    <button id="btn-feedback-dislike" class="btn-thumb btn-dislike" title="Report issue / Provide correction (adds to DPO Alignment Set)">
-                      <span class="thumb-icon">👎</span>
-                      <span>Suggest Correction</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Positive Feedback Confirmation -->
-                <div id="feedback-success-banner" class="feedback-alert alert-success hidden">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                  <div>
-                    <strong>Thank you!</strong> This verified response was added to the <code>tests/golden_eval_set.jsonl</code> benchmark suite.
-                  </div>
-                </div>
-
-                <!-- Negative Feedback / Human Correction Drawer -->
-                <div id="feedback-drawer" class="feedback-drawer hidden">
-                  <div class="drawer-header">
-                    <h4>Direct Preference Optimization (DPO) Human-in-the-Loop Correction</h4>
-                    <p>Help refine our model alignments by specifying any deficiencies or entering the expected ground-truth.</p>
-                  </div>
-
-                  <div class="feedback-reasons-grid">
-                    <label class="reason-chip">
-                      <input type="radio" name="feedback-reason" value="Inaccurate Fact">
-                      <span>Inaccurate Fact</span>
-                    </label>
-                    <label class="reason-chip">
-                      <input type="radio" name="feedback-reason" value="Missing Critical Context">
-                      <span>Missing Critical Context</span>
-                    </label>
-                    <label class="reason-chip">
-                      <input type="radio" name="feedback-reason" value="Wrong Document Cited">
-                      <span>Wrong Document Cited</span>
-                    </label>
-                    <label class="reason-chip">
-                      <input type="radio" name="feedback-reason" value="Hallucination / Verbose">
-                      <span>Hallucination / Verbose</span>
-                    </label>
-                  </div>
-
-                  <div class="correction-field">
-                    <label for="user-correction-input">Human Ground Truth / Expected Answer:</label>
-                    <textarea 
-                      id="user-correction-input" 
-                      rows="3" 
-                      placeholder="Write the preferred exact ground-truth answer for DPO/SFT dataset pairs..."
-                    ></textarea>
-                  </div>
-
-                  <div class="drawer-actions">
-                    <button type="button" id="cancel-correction-btn" class="btn-secondary">Cancel</button>
-                    <button type="button" id="submit-correction-btn" class="btn-accent">
-                      <span>Submit to DPO Dataset</span>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="22" y1="2" x2="11" y2="13"></line>
-                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Context Passages Inspect Drawer -->
-              <details class="context-inspector">
-                <summary>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="16" x2="12" y2="12"></line>
-                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                  </svg>
-                  <span>Inspect Retrieved Context Chunks & Relevance Scores (<span id="retrieved-count">0</span> passages)</span>
-                </summary>
-                <div id="context-passages-list" class="passages-grid"></div>
-              </details>
-            </div>
           </div>
         </section>
 
@@ -284,7 +187,7 @@
               <div class="metric-box highlight">
                 <div class="metric-label">Total E2E Latency</div>
                 <div id="metric-total-time" class="metric-value">-- ms</div>
-                <div class="metric-sub">API Roundtrip</div>
+                <div class="metric-sub">Prompt Roundtrip</div>
               </div>
 
               <div class="metric-box">
@@ -296,7 +199,7 @@
 
             <div class="cost-callout">
               <div class="cost-header">
-                <span>Estimated Unit Query Cost:</span>
+                <span>Estimated Unit Prompt Cost:</span>
                 <span id="metric-query-cost" class="cost-amount">$0.000000</span>
               </div>
               <div class="cost-bar-container">
@@ -353,7 +256,7 @@
                   <span class="stat-icon total">📊</span>
                   <div>
                     <div class="stat-name">Total Feedback Collected</div>
-                    <div class="stat-desc">User Sentiment Logs</div>
+                    <div class="stat-desc">Human-in-the-Loop Logs</div>
                   </div>
                 </div>
                 <div id="stat-total-feedback" class="stat-badge total">0</div>
@@ -372,7 +275,7 @@
             </div>
           </div>
 
-          <!-- Business Outcome & Competency KPIs -->
+          <!-- Business Outcome & Operational KPIs -->
           <div class="card kpi-card">
             <div class="card-header">
               <div class="card-title-group">
@@ -380,7 +283,7 @@
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                   <polyline points="22 4 12 14.01 9 11.01"></polyline>
                 </svg>
-                <h3>Business Value & Architecture KPIs</h3>
+                <h3>Live Operational & Business KPIs</h3>
               </div>
             </div>
 
@@ -388,33 +291,35 @@
               <div class="kpi-item">
                 <div class="kpi-header-row">
                   <span>First Contact Resolution (FCR)</span>
-                  <span class="kpi-val positive">94.2% (Target: 85%)</span>
+                  <span id="kpi-fcr-val" class="kpi-val positive">94.2%</span>
                 </div>
-                <div class="kpi-track"><div class="kpi-fill green" style="width: 94%"></div></div>
+                <div class="kpi-track"><div id="kpi-fcr-bar" class="kpi-fill green" style="width: 94%"></div></div>
               </div>
 
               <div class="kpi-item">
                 <div class="kpi-header-row">
                   <span>Search Time Reduction</span>
-                  <span class="kpi-val positive">-72% (Avg 2.4s)</span>
+                  <span id="kpi-search-val" class="kpi-val positive">-72% (Avg 2.4s)</span>
                 </div>
-                <div class="kpi-track"><div class="kpi-fill blue" style="width: 72%"></div></div>
+                <div class="kpi-track"><div id="kpi-search-bar" class="kpi-fill blue" style="width: 72%"></div></div>
               </div>
 
               <div class="kpi-item">
                 <div class="kpi-header-row">
                   <span>Zero-Trust Credential Violations</span>
-                  <span class="kpi-val highlight">0 (100% Managed Identity)</span>
+                  <span id="kpi-zt-val" class="kpi-val highlight">0 (Monitored Active)</span>
                 </div>
-                <div class="kpi-track"><div class="kpi-fill purple" style="width: 100%"></div></div>
+                <div class="kpi-track"><div id="kpi-zt-bar" class="kpi-fill purple" style="width: 100%"></div></div>
+              </div>
+
+              <div class="kpi-item">
+                <div class="kpi-header-row">
+                  <span>Active Session Prompts</span>
+                  <span id="kpi-prompts-val" class="kpi-val neutral">0 Prompts</span>
+                </div>
               </div>
             </div>
 
-            <div class="certification-footer">
-              <span class="cert-tag">Microsoft AI-103</span>
-              <span class="cert-tag">Microsoft AZ-104</span>
-              <span class="cert-tag">Azure B1 Zero-Added Cost</span>
-            </div>
           </div>
 
         </aside>
@@ -424,7 +329,7 @@
     <!-- Footer -->
     <footer class="app-footer">
       <div class="footer-content">
-        <p><strong>Intelligent Knowledge Hub</strong> &copy; 2026 — Enterprise RAG Architecture designed for Azure Linux App Service, Azure AI Search, and Azure OpenAI.</p>
+        <p><strong>Intelligent Knowledge Hub</strong> &copy; 2026 — Enterprise Zero-Trust RAG Architecture for Frontline Service Representatives.</p>
         <div class="footer-links">
           <a href="/docs" target="_blank">Swagger OpenAPI Docs</a>
           <span>&bull;</span>
